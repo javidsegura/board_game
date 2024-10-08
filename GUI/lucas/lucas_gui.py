@@ -31,6 +31,10 @@ class MinefieldGame(QWidget):
         self.show()
 
     def get_stylesheet(self):
+        """
+        Def: sets CSS for UI widgets
+        Question: which widget is which? Which are all possible-related widgets?
+        """
         return """
             QWidget {
                 background-color: #2b2b2b;
@@ -76,6 +80,9 @@ class MinefieldGame(QWidget):
         """
 
     def setup_controls(self):
+        """
+        Defines left-most menu
+        """
         control_layout = QVBoxLayout()
 
         # Bet label and input field
@@ -110,6 +117,9 @@ class MinefieldGame(QWidget):
         self.main_layout.addLayout(control_layout)
 
     def setup_grid(self):
+        """"
+        Def: this is where our algorithims will reside 
+        """
         # Create a grid for the minefield buttons
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)
@@ -180,10 +190,16 @@ class MinefieldGame(QWidget):
             self.bet_input.setText("Invalid Input")
             self.mines_input.setText("Invalid Input")
 
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MinefieldGame()
     sys.exit(app.exec())
+
+
+
+
 
 
 
