@@ -1,0 +1,5 @@
+CURRENT PROBLEMS:
+
+
+- When you dont change the default it says 'invalid input' 
+- Keep in cache the results of the multipliers so you dont have to recompute them

@@ -1,12 +1,18 @@
-import sys
-import random
+"""
+This module should serve as a general control of the GUI.
+
+It should mainly be reduced to function calls to other modules.
+
+"""
+
+import sys, random
 from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QSpacerItem, QSizePolicy, QLineEdit
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
 
 from game_css import GameStyle
+from bombs_logic import BombsLogic # This is where the bomb logic should be. To eventually be moved here.
+from MATH.multiplier import MultiplierFunc
 
-class MinefieldGame(QWidget, GameStyle):
+class MinefieldGame(QWidget, GameStyle, BombsLogic):
     def __init__(self):
         """ General control of the GUI"""
         super().__init__()
@@ -19,21 +25,21 @@ class MinefieldGame(QWidget, GameStyle):
         # Set up the main UI window
         self.setWindowTitle("Modern Minefield Game")
         self.setGeometry(100, 100, 1000, 700)  # Make window larger
-        self.setStyleSheet(GameStyle.get_stylesheet())
+        self.setStyleSheet(GameStyle().get_stylesheet())
 
         # Set up the main layout
         self.main_layout = QHBoxLayout()  # Horizontal layout for control panel and game area
         self.setLayout(self.main_layout)
 
         # Setup the control panel
-        self.setup_controls()
+        self.configuration_panel()
 
         # Setup the game grid
         self.setup_grid()
 
         self.show()
 
-    def setup_controls(self):
+    def configuration_panel(self):
         """
         Defines left-most menu
         """
@@ -61,7 +67,7 @@ class MinefieldGame(QWidget, GameStyle):
         # Start button
         self.start_button = QPushButton("Start Game")
         self.start_button.setObjectName("startButton")  # Set object name for specific styling
-        self.start_button.clicked.connect(self.start_game)
+        self.start_button.clicked.connect(BombsLogic().start_game)
         control_layout.addWidget(self.start_button)
 
         # Add spacing below button
@@ -69,6 +75,12 @@ class MinefieldGame(QWidget, GameStyle):
 
         # Add control layout to main layout (on the left)
         self.main_layout.addLayout(control_layout)
+
+    """ 
+    **********************************************************************************
+        BOMB LOGIC  BELOW HERE => We need to move this section to a different file
+    **********************************************************************************
+    """
 
     def setup_grid(self):
         """"
@@ -113,8 +125,7 @@ class MinefieldGame(QWidget, GameStyle):
             row = random.randint(0, self.grid_size - 1)
             col = random.randint(0, self.grid_size - 1)
             self.mines.add((row, col))
-
-
+    
     def on_button_click(self, row, col):
         if (row, col) in self.mines:
             self.buttons[(row, col)].setText("💣")
@@ -149,19 +160,14 @@ class MinefieldGame(QWidget, GameStyle):
             self.mines_input.setText("Invalid Input")
 
 
+    
+
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MinefieldGame()
-    sys.exit(app.exec())
+    app = QApplication(sys.argv) # Initialize the application
+    window = MinefieldGame() # Initialize the main window (actual GUI)
+    sys.exit(app.exec()) # Start the event loop
 
 
 
 
-
-
-
-"""
-GPT converstaion explining: https://chatgpt.com/share/66ffc74c-2330-8010-8f19-c425267f7a96
-
-"""

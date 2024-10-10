@@ -59,17 +59,8 @@ class MultiplierFunc():
             x += 1
 
         self.results_table = pd.DataFrame(list(frequencies_table.items()), columns=["SpaceUncovered", "WinFrequency"])
-        self.results_table["LoseFrequency"] = 1 - self.results_table["WinFrequency"]
         self.results_table["Multiplier"] = 1/self.results_table["WinFrequency"] * (1-self.M) # Multiplier function
-        self.results_table["WinEV"] = (self.results_table["WinFrequency"] *  (self.results_table["Multiplier"] * self.b - self.b)) 
-        self.results_table["LoseEV"] = -self.b * self.results_table["LoseFrequency"]
-        self.results_table["EV (%)"] = self.results_table["WinEV"] + self.results_table["LoseEV"] # Refer to 1.2 in the presence of doubt
-
-        self.results_table["NumberOfCells"] = self.n
-        self.results_table["NumberOfBombs"] = self.r
-        self.results_table["Bet"] = self.b
-        self.results_table["HouseAdvantage"] = self.M
-
+        
         return self.results_table.round(2) # Round up all cols' values to 2 decimals
     
     def plot_frequency(self):
@@ -107,6 +98,25 @@ class MultiplierFunc():
 
         for i in range(self.n):
             self.r = i
-            (self.frequency_table())[1:].to_csv(f"/Users/javierdominguezsegura/Programming/College/Sophomore/Algos/Final project/dsa/MATH/THEORY/csv-results/{i}bombs.csv", index=False)
+            (self.frequency_table())[1:].to_csv(f"src/MATH/csv-results/{i}bombs.csv", index=False)
 
         return None
+    
+    def get_next_multiplier(self):
+        self.stop = False
+
+        frequency_table = self.frequency_table()[1:]
+
+        for index, row in frequency_table.iterrows():   
+            if self.stop:
+                break
+            yield row["Multiplier"]
+    
+    def stop_generator(self):
+        """ Stop multiplier prematurely"""
+        self.stop = True
+
+
+    
+temp = MultiplierFunc(25, 10, 100, .03)
+arr = temp.get_next_multiplier()
