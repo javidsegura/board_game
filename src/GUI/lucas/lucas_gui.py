@@ -4,7 +4,9 @@ from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, Q
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
-class MinefieldGame(QWidget):
+from game_css import GameStyle
+
+class MinefieldGame(QWidget, GameStyle):
     def __init__(self):
         """ General control of the GUI"""
         super().__init__()
@@ -17,7 +19,7 @@ class MinefieldGame(QWidget):
         # Set up the main UI window
         self.setWindowTitle("Modern Minefield Game")
         self.setGeometry(100, 100, 1000, 700)  # Make window larger
-        self.setStyleSheet(self.get_stylesheet())
+        self.setStyleSheet(GameStyle.get_stylesheet())
 
         # Set up the main layout
         self.main_layout = QHBoxLayout()  # Horizontal layout for control panel and game area
@@ -30,56 +32,6 @@ class MinefieldGame(QWidget):
         self.setup_grid()
 
         self.show()
-
-    def get_stylesheet(self):
-        """
-        Def: sets CSS for UI widgets
-        Question: which widget is which? Which are all possible-related widgets?
-        Note: can this be taken to a different file?
-        """
-        return """
-            QWidget {
-                background-color: #2b2b2b;
-                font-family: Arial;
-            }
-            QLabel {
-                color: #ffffff;
-                font-size: 16px;
-            }
-            QLineEdit {
-                background-color: #444444;
-                color: white;
-                font-size: 18px;
-                padding: 5px;
-                border: 2px solid #555555;
-                border-radius: 5px;
-            }
-            QLineEdit:focus {
-                border-color: #ffcc00;
-            }
-            QPushButton {
-                background-color: #444444;
-                color: white;
-                font-size: 18px;
-                border-radius: 10px;
-                padding: 10px;
-            }
-            QPushButton:hover {
-                background-color: #555555;
-            }
-            QPushButton#startButton {
-                background-color: #ffcc00;
-                color: black;
-                font-size: 18px;
-            }
-            QPushButton#startButton:hover {
-                background-color: #ffd633;
-            }
-            QPushButton:disabled {
-                background-color: #888888;
-                color: #aaaaaa;
-            }
-        """
 
     def setup_controls(self):
         """

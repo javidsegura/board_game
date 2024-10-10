@@ -1,3 +1,7 @@
+"""
+Includes all the math behind the multiplier function.
+"""
+
 from math import factorial    
 import pandas as pd
 import matplotlib.pyplot as plt

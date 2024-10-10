@@ -1,0 +1,3 @@
+"""
+Defines the bomb placement
+"""
