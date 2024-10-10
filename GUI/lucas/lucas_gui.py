@@ -6,6 +6,7 @@ from PySide6.QtGui import QFont
 
 class MinefieldGame(QWidget):
     def __init__(self):
+        """ General control of the GUI"""
         super().__init__()
         self.grid_size = 5
         self.num_mines = 3
@@ -34,6 +35,7 @@ class MinefieldGame(QWidget):
         """
         Def: sets CSS for UI widgets
         Question: which widget is which? Which are all possible-related widgets?
+        Note: can this be taken to a different file?
         """
         return """
             QWidget {
@@ -118,7 +120,8 @@ class MinefieldGame(QWidget):
 
     def setup_grid(self):
         """"
-        Def: this is where our algorithims will reside 
+        Defines right mox 
+        Note: this is where our algorithims will reside 
         """
         # Create a grid for the minefield buttons
         self.grid_layout = QGridLayout()
@@ -141,6 +144,9 @@ class MinefieldGame(QWidget):
         self.main_layout.addLayout(grid_container)
 
     def create_minefield(self):
+        """ Control the boms
+        This should be on a different file
+        """
         # Reset the minefield
         for btn in self.buttons.values():
             btn.setText("")

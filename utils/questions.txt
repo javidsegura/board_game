@@ -1,0 +1,1 @@
+Inheriting from gejeral class
