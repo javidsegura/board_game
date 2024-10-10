@@ -19,7 +19,7 @@ from wallet import Wallet
 
 
 
-class MinefieldGame(QWidget, GameStyle):
+class RoobetMines(QWidget, GameStyle):
     def __init__(self):
         super().__init__()
         self.grid_size = 5
