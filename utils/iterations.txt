@@ -1,13 +1,19 @@
 CURRENT PROBLEMS:
 
 BASIC LOGIC:
-      - Multiplier function
-      - Money earned
-      - Your wallet button
-      - Improve game over funct
-      - Add slider for bombs 
+      - You cant cash out if you have not clicked any bombs
+      - Bet resets after game over
+      - Game automatically restarts after 3 secs
+      - Put a 10% default bet
+
+DESIGN:
+      - Improve game over function
       - Start game at the bottom
       - Effects on certain actions
 
+
+
+
 DEVELOPER LOGIC:
-- Keep in cache the results of the multipliers so you dont have to recompute them
+- Get central_gui reduced
+-- Keep in cache the results of the multipliers so you dont have to recompute them

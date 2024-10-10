@@ -1,0 +1,8 @@
+.
+├── imgs
+├── iterations.txt
+├── my_script.zsh
+├── requirements.txt
+└── tree.txt
+
+2 directories, 4 files

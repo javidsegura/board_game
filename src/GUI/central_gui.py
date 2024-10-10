@@ -5,46 +5,71 @@ It should mainly be reduced to function calls to other modules.
 
 """
 
-import sys, random
-from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QSpacerItem, QSizePolicy, QLineEdit
-from PySide6.QtCore import QTimer
+import sys,os
+
+from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel,
+                                QLineEdit, QSpacerItem, QSizePolicy, QSlider)
+from PySide6.QtCore import QTimer, Qt
 
 from game_css import GameStyle
-from bombs_logic import BombsLogic # This is where the bomb logic should be. To eventually be moved here.
-#from MATH.multiplier import MultiplierFunc
+from bombs_logic import BombsLogic
+from grid import GridLogic
+from multiplier import MultiplierFunc
+from wallet import Wallet
 
-class MinefieldGame(QWidget, GameStyle, BombsLogic):
+
+
+class MinefieldGame(QWidget, GameStyle):
     def __init__(self):
-        """ General control of the GUI"""
         super().__init__()
-        self.grid_size = 5 # 5 x 5
-        self.buttons = {}
-        self.mines = set() # Coordinates of the bombs => Set because we dont wannt duplicated coordinates
+        self.grid_size = 5
+        self.bombs_logic = BombsLogic(self.grid_size)
+        self.grid_logic = GridLogic(self.grid_size, self.on_button_click)
+        self.wallet = Wallet()  # Initialize the wallet
+        self.current_bet = 0
+        self.current_multiplier = 1
+        self.current_profit = 0
 
         # Set up the main UI window
         self.setWindowTitle("Modern Minefield Game")
-        self.setGeometry(100, 100, 1000, 700)  # Make window larger
+        self.setGeometry(100, 100, 1000, 700)
         self.setStyleSheet(GameStyle().get_stylesheet())
 
         # Start the main layout
-        self.main_layout = QHBoxLayout()  # Horizontal layout for control panel and game area
+        self.main_layout = QHBoxLayout()
         self.setLayout(self.main_layout)
 
         # Start the control panel
         self.configuration_panel()
 
         # Setup the game grid
-        self.setup_grid()
-        self.disable_grid(True) # Initially disable the grid
+        self.main_layout.addLayout(self.grid_logic.setup_grid())
+        self.grid_logic.disable_grid(True)  # Initially disable the grid
+
+        # Setup the wallet and multiplier display
+        self.setup_wallet_display()
 
         self.show()
+
+    def setup_wallet_display(self):
+        wallet_layout = QVBoxLayout()
+
+        self.wallet_label = QLabel(f"Wallet: ${self.wallet.get_balance():.2f}")
+        wallet_layout.addWidget(self.wallet_label)
+
+        self.multiplier_label = QLabel(f"Multiplier: {self.wallet.get_current_multiplier():.2f}x")
+        wallet_layout.addWidget(self.multiplier_label)
+
+        self.profit_label = QLabel("Profit: $0.00")
+        wallet_layout.addWidget(self.profit_label)
+
+        self.cashout_button = QPushButton("Cash Out")
+        self.cashout_button.clicked.connect(self.cash_out)
+        self.cashout_button.setDisabled(True)
+        wallet_layout.addWidget(self.cashout_button)
+
+        self.main_layout.addLayout(wallet_layout)
     
-    def disable_grid(self, disable=True):
-        """
-        Initially disable the grid until input is confirmed to be correct
-        """
-        for btn in self.buttons.values():
-            btn.setDisabled(disable)
 
     def configuration_panel(self):
         """
@@ -58,11 +83,24 @@ class MinefieldGame(QWidget, GameStyle, BombsLogic):
         self.bet_input = QLineEdit()
         control_layout.addWidget(self.bet_input)
 
-        # Mines label and input field
-        self.mines_label = QLabel("Number of Mines: ")
+        # Bet percentage buttons
+        bet_percentage_layout = QHBoxLayout()
+        percentages = [10, 25, 50, 75, 100]
+        for percentage in percentages:
+            btn = QPushButton(f"{percentage}%")
+            btn.clicked.connect(lambda _, p=percentage: self.set_bet_percentage(p))
+            bet_percentage_layout.addWidget(btn)
+        control_layout.addLayout(bet_percentage_layout)
+
+        # Mines label and slider
+        self.mines_label = QLabel("Number of Mines: 1")
         control_layout.addWidget(self.mines_label)
-        self.mines_input = QLineEdit()
-        control_layout.addWidget(self.mines_input)
+        self.mines_slider = QSlider(Qt.Horizontal)
+        self.mines_slider.setMinimum(1)
+        self.mines_slider.setMaximum(24)
+        self.mines_slider.setValue(1)
+        self.mines_slider.valueChanged.connect(self.update_mines_label)
+        control_layout.addWidget(self.mines_slider)
 
         # Confirm button
         self.confirm_button = QPushButton("Confirm Selection")
@@ -83,127 +121,123 @@ class MinefieldGame(QWidget, GameStyle, BombsLogic):
 
         # Add spacing
         control_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
         # Add spacing below button
         control_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
         # Add control layout to main layout (on the left)
         self.main_layout.addLayout(control_layout)
+    
+    def set_bet_percentage(self, percentage):
+        bet_amount = self.wallet.calculate_percentage_bet(percentage)
+        self.bet_input.setText(f"{bet_amount:.2f}")
 
-    """ 
-    **********************************************************************************
-        BOMB LOGIC  BELOW HERE => We need to move this section to a different file
-    **********************************************************************************
-    """
-
-    def setup_grid(self):
-        """"
-        Defines right mox 
-        Note: this is where our algorithims will reside 
-        """
-
-        # Create a grid for the minefield buttons
-        self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(10) # Spacing between cells
-
-        for row in range(self.grid_size):
-            for col in range(self.grid_size):
-                btn = QPushButton("")
-                btn.setFixedSize(120, 120)  
-                btn.clicked.connect(lambda _, r=row, c=col: self.on_button_click(r, c)) # whats this notation?
-                self.grid_layout.addWidget(btn, row, col)
-                self.buttons[(row, col)] = btn
-
-        # Add grid to main layout, centered
-        grid_container = QVBoxLayout()
-        grid_container.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-        grid_container.addLayout(self.grid_layout)
-        grid_container.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
-        self.main_layout.addLayout(grid_container)
+    def update_mines_label(self):
+        self.mines_label.setText(f"Number of Mines: {self.mines_slider.value()}")
 
     def create_minefield(self):
         """ Control the bombs
         This should be on a different file
         """
-        # Reset the minefield --> What this doing?
-        for btn in self.buttons.values():
-            btn.setText("")
-            btn.setEnabled(True)
-            btn.setStyleSheet("")
+        self.grid_logic.reset_buttons()
+        self.bombs_logic.create_minefield(self.num_mines)
 
-        # Reset the mines set
-        self.mines.clear() # Coordinates of the bombs
-
-        # Randomly place the mines
-        while len(self.mines) < self.num_mines:
-            row = random.randint(0, self.grid_size - 1)
-            col = random.randint(0, self.grid_size - 1)
-            self.mines.add((row, col))
-    
     def on_button_click(self, row, col):
-        """
-        What happens when you click a button
-        """
-        # If given cell is a mine
-        if (row, col) in self.mines:
-            self.buttons[(row, col)].setText("💣")
-            self.buttons[(row, col)].setStyleSheet("background-color: red; font-size: 24px;")
+        if self.bombs_logic.is_mine(row, col):
+            self.grid_logic.set_button_state(row, col, "💣", "background-color: red; font-size: 24px;")
             self.game_over()
         else:
-            self.buttons[(row, col)].setText("✔")
-            self.buttons[(row, col)].setStyleSheet("background-color: green; font-size: 24px;")
-            self.buttons[(row, col)].setDisabled(True)
+            self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #f2f230; font-size: 24px;")
+            self.grid_logic.disable_button(row, col)
+            self.update_multiplier()
+
+    def update_multiplier(self):
+        try:
+            self.current_multiplier = next(self.multiplier_generator)
+            self.multiplier_label.setText(f"Multiplier: {self.current_multiplier:.2f}x")
+        except StopIteration:
+            self.cash_out()
+    
+    def cash_out(self):
+        winnings = self.wallet.cash_out()
+        self.update_wallet_display()
+        self.game_over()
 
     def game_over(self):
-        """
-        What happens when you click a mine
-        """
-        for row, col in self.mines:
-            self.buttons[(row, col)].setText("💣")
-            self.buttons[(row, col)].setStyleSheet("background-color: red; font-size: 24px;")
-        for btn in self.buttons.values():
-            btn.setDisabled(True)
+        for row, col in self.bombs_logic.get_mines():
+            self.grid_logic.set_button_state(row, col, "💣", "background-color: red; font-size: 24px;")
+        self.grid_logic.disable_grid(True)
+        self.cashout_button.setDisabled(True)
+        self.start_button.setDisabled(False)
+        self.confirm_button.setDisabled(False)
+        self.bet_input.setDisabled(False)
+        self.mines_slider.setDisabled(False)
+        self.multiplier_func.stop_generator()
+        self.wallet.reset_bet()
+        self.update_wallet_display()
+        self.bet_input.setText("")
+        
+
+    def update_wallet_display(self):
+        self.wallet_label.setText(f"Wallet: ${self.wallet.get_balance():.2f}")
+
+    def update_profit_display(self):
+        self.profit_label.setText(f"Profit: ${self.wallet.get_current_profit():.2f}")
+    
+    def update_multiplier(self):
+        try:
+            new_multiplier = next(self.multiplier_generator)
+            self.wallet.update_multiplier(new_multiplier)
+            self.multiplier_label.setText(f"Multiplier: {self.wallet.get_current_multiplier():.2f}x")
+            self.update_profit_display()
+        except StopIteration:
+            self.cash_out()
+
 
     def confirm_selection(self):
         try:
-            self.bet_amount_value = float(self.bet_input.text())
-            self.num_mines = int(self.mines_input.text())
+            bet_amount = float(self.bet_input.text())
+            self.num_mines = self.mines_slider.value()
 
             if self.num_mines < 1 or self.num_mines >= (self.grid_size ** 2) - 1:
                 raise ValueError("Invalid number of mines.")
 
-            self.start_button.setDisabled(False)  # Enable start button
-            self.warning_label.setText("")  # Clear any previous warnings
+            if bet_amount > self.wallet.get_balance():
+                raise ValueError("Bet amount exceeds wallet balance.")
+        
+            if bet_amount < 1:
+                raise ValueError("Bet amount must be greater than 0.")
 
-        except ValueError:
-            self.show_warning("Invalid input. Please check your bet and mines.")
-            self.start_button.setDisabled(True)  # Ensure start button is disabled
+            self.wallet.place_bet(bet_amount)
+            self.update_wallet_display()
+            self.start_button.setDisabled(False)
+            self.warning_label.setText("")
+
+        except ValueError as e:
+            self.show_warning(str(e))
+            self.start_button.setDisabled(True)
 
 
     def show_warning(self, message):
         self.warning_label.setText(message)
-        QTimer.singleShot(3000, lambda: self.warning_label.setText(""))  # Clear after 3 seconds
-
+        QTimer.singleShot(3000, lambda: self.warning_label.setText("")) # Warning is cleared after 3 seconds
 
 
     def start_game(self):
-        """
-        What happens when you click the start button
-        """
         self.create_minefield()
-        self.disable_grid(False)  # Enable grid
-        self.start_button.setDisabled(True)  # Disable start button
-        self.confirm_button.setDisabled(True)  # Disable confirm button
-        self.bet_input.setDisabled(True)  # Disable bet input
-        self.mines_input.setDisabled(True)  # Disable mines input
+        self.grid_logic.disable_grid(False)
+        self.start_button.setDisabled(True)
+        self.confirm_button.setDisabled(True)
+        self.bet_input.setDisabled(True)
+        self.mines_slider.setDisabled(True)
+        self.cashout_button.setDisabled(False)
+
+        self.multiplier_func = MultiplierFunc(self.grid_size ** 2, self.num_mines)
+        self.multiplier_generator = self.multiplier_func.get_next_multiplier()
+        self.update_multiplier()
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv) # Initialize the application
-    window = MinefieldGame() # Initialize the main window (actual GUI)
-    sys.exit(app.exec()) # Start the event loop
-
-
+    app = QApplication(sys.argv)
+    window = MinefieldGame()
+    sys.exit(app.exec())
 
 
