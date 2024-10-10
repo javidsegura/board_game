@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, 
 from PySide6.QtCore import QTimer, Qt
 
 from game_css import GameStyle
-from bombs_logic import BombsLogic
+from bombs import BombsLogic
 from grid import GridLogic
 from multiplier import MultiplierFunc
 from wallet import Wallet
