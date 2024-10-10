@@ -1,5 +1,13 @@
 CURRENT PROBLEMS:
 
+BASIC LOGIC:
+      - Multiplier function
+      - Money earned
+      - Your wallet button
+      - Improve game over funct
+      - Add slider for bombs 
+      - Start game at the bottom
+      - Effects on certain actions
 
-- When you dont change the default it says 'invalid input' 
+DEVELOPER LOGIC:
 - Keep in cache the results of the multipliers so you dont have to recompute them

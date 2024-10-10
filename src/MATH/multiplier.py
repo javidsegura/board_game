@@ -104,7 +104,6 @@ class MultiplierFunc():
     
     def get_next_multiplier(self):
         self.stop = False
-
         frequency_table = self.frequency_table()[1:]
 
         for index, row in frequency_table.iterrows():   
@@ -113,10 +112,8 @@ class MultiplierFunc():
             yield row["Multiplier"]
     
     def stop_generator(self):
-        """ Stop multiplier prematurely"""
+        """ Stop multiplier func prematurely"""
         self.stop = True
 
 
-    
-temp = MultiplierFunc(25, 10, 100, .03)
-arr = temp.get_next_multiplier()
+
