@@ -18,7 +18,7 @@ class BombsLogic():
             col = random.randint(0, self.grid_size - 1)
             self.mines.add((row, col))
 
-    def is_mine(self, row, col):
+    def is_mine(self, row, col): # THIS IS WHERE WE IMPLEMENT BORIS' ALGORITHIMS
         return (row, col) in self.mines
 
     def get_mines(self):

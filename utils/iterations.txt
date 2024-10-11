@@ -17,3 +17,8 @@ DESIGN:
 DEVELOPER LOGIC:
 - Get central_gui reduced
 -- Keep in cache the results of the multipliers so you dont have to recompute them
+
+
+
+-- QUESTIONS:
+      - Can we implement a hash table somewhere?
