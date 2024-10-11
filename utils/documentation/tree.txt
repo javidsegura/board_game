@@ -1,0 +1,58 @@
+.
+├── README.md
+├── src
+│   ├── __pycache__
+│   │   ├── bombs.cpython-312.pyc
+│   │   ├── game_css.cpython-312.pyc
+│   │   ├── grid.cpython-312.pyc
+│   │   ├── multiplier.cpython-312.pyc
+│   │   └── wallet.cpython-312.pyc
+│   ├── bombs.py
+│   ├── game_css.py
+│   ├── grid.py
+│   ├── main.py
+│   ├── multiplier.py
+│   └── wallet.py
+└── utils
+    ├── MATH
+    │   ├── MathOfGame.ipynb
+    │   └── csv-results
+    │       ├── 0bombs.csv
+    │       ├── 10bombs.csv
+    │       ├── 11bombs.csv
+    │       ├── 12bombs.csv
+    │       ├── 13bombs.csv
+    │       ├── 14bombs.csv
+    │       ├── 15bombs.csv
+    │       ├── 16bombs.csv
+    │       ├── 17bombs.csv
+    │       ├── 18bombs.csv
+    │       ├── 19bombs.csv
+    │       ├── 1bombs.csv
+    │       ├── 20bombs.csv
+    │       ├── 21bombs.csv
+    │       ├── 22bombs.csv
+    │       ├── 23bombs.csv
+    │       ├── 24bombs.csv
+    │       ├── 2bombs.csv
+    │       ├── 3bombs.csv
+    │       ├── 4bombs.csv
+    │       ├── 5bombs.csv
+    │       ├── 6bombs.csv
+    │       ├── 7bombs.csv
+    │       ├── 8bombs.csv
+    │       ├── 9bombs.csv
+    │       └── README.md
+    ├── imgs
+    │   ├── back_bomb.png
+    │   ├── back_star.png
+    │   └── front.png
+    ├── organization
+    │   ├── my_script.zsh
+    │   ├── requirements.txt
+    │   └── tree.txt
+    └── other
+        ├── design.txt
+        └── iterations.txt
+
+9 directories, 47 files
