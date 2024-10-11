@@ -25,10 +25,11 @@ class RoobetMines(QWidget, GameStyle):
         self.grid_size = 5
         self.bombs_logic = BombsLogic(self.grid_size)
         self.grid_logic = GridLogic(self.grid_size, self.on_button_click)
-        self.wallet = Wallet()  # Initialize the wallet
-        self.current_bet = 0
-        self.current_multiplier = 1
-        self.current_profit = 0
+
+        self.wallet = Wallet()
+        self.current_bet = self.wallet.current_bet # redundant
+        self.current_multiplier = self.wallet.current_multiplier # redundant
+        self.current_profit = self.wallet.current_profit # redundant
 
         # Set up the main UI window
         self.setWindowTitle("Modern Minefield Game")
@@ -237,7 +238,7 @@ class RoobetMines(QWidget, GameStyle):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MinefieldGame()
+    window = RoobetMines()
     sys.exit(app.exec())
 
 

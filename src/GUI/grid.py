@@ -1,7 +1,12 @@
 from PySide6.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QSpacerItem, QSizePolicy
 
 class GridLogic:
-    def __init__(self, grid_size, on_button_click):
+    def __init__(self, grid_size : int, on_button_click : callable) -> None:
+        """
+        Parameters:
+            - grid_size: int
+            - on_button_click: function
+        """
         self.grid_size = grid_size
         self.buttons = {}
         self.on_button_click = on_button_click

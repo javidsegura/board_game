@@ -63,45 +63,6 @@ class MultiplierFunc():
         
         return self.results_table.round(2) # Round up all cols' values to 2 decimals
     
-    def plot_frequency(self):
-        """
-        Definition:
-            Plots the probability distribution of the set-up and the distribution of the multipliers
-        Parameters:
-            None
-        Returns:
-            None"""
-
-        plt.title(f"Frequency function for n:{self.n}, r:{self.r}")
-        plt.plot(self.results_table["SpaceUncovered"], self.results_table["WinFrequency"], label = "win frequency of x", marker = "o")
-        plt.xlabel("Nº of Space Uncovered")
-        plt.ylabel("Frequency")
-        plt.legend()
-        plt.grid()
-        plt.show()
-
-
-        plt.title(f"Multiplier function for n:{self.n}, r:{self.r}")
-        plt.plot(self.results_table["SpaceUncovered"], self.results_table["Multiplier"], label = "multiplier at x", marker = "x", color ="g")
-        plt.xlabel("Nº of Space Uncovered")
-        plt.ylabel("Multiplier")
-        plt.grid()
-        plt.legend()
-        plt.show()
-
-        return None
-    
-    def get_csv(self):
-
-        """ 
-        Get all possible scenarios for fixed n = 25, b = 100 M = .03"""
-
-        for i in range(self.n):
-            self.r = i
-            (self.frequency_table())[1:].to_csv(f"src/MATH/csv-results/{i}bombs.csv", index=False)
-
-        return None
-    
     def get_next_multiplier(self):
         self.stop = False
         frequency_table = self.frequency_table()[1:]
