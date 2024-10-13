@@ -1,0 +1,6 @@
+
+
+- IDENTIFIER AND MULTIPER DO NOT WORK
+- The user never sees a final screen
+      - It should be able to click 'new game' from there
+- Not all cells flip at the end of the game
