@@ -35,7 +35,6 @@ class CasinoMines(QWidget, GameStyle):
         self.config_panel = ConfigurationPanel()
         self.wallet = Wallet()
         self.header = Header()
-        self.first_game = True
         self.game_in_progress = False
         self.clicked_cells = set()
         
@@ -76,9 +75,7 @@ class CasinoMines(QWidget, GameStyle):
         self.start_button.setDisabled(True)
         left_layout.addWidget(self.start_button)
         self.game_layout.addLayout(left_layout)
-
         self.config_panel.set_start_button(self.start_button)
-
 
     def start_game(self):
         """Function executed when the user clicks on the start button"""
@@ -109,24 +106,23 @@ class CasinoMines(QWidget, GameStyle):
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()
             
-
     def game_over(self):
         """ Defines behavior after user clicked on a cell with a mine"""
         self.game_in_progress = False
+
         # Showing all other mines
         mines_set = self.bombs_logic.set_of_mines()
-        for row, col in self.grid_logic.cells:
+        non_clicked_cells = set(self.grid_logic.cells.keys()).difference(self.clicked_cells)
+        for row, col in non_clicked_cells:
             if (row, col) in mines_set:
-                self.grid_logic.set_button_state(row, col, "💣", "background-color: red; font-size: 24px;")
+                self.grid_logic.set_button_state(row, col, "💣", "background-color: #f29696; font-size: 24px;")
             else:
-                self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #f2f230; font-size: 24px;")
+                self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #f2f296; font-size: 24px;")
 
        # Deactivate corresponding widgets of the GUI
         self.grid_logic.disable_grid(True)
-
         self.show_GameOver_screen()
 
-    
     def show_GameOver_screen(self):
         """ Shows a game over pop-up and resets the game when dismissed """
         msg_box = QMessageBox(self)
@@ -134,7 +130,7 @@ class CasinoMines(QWidget, GameStyle):
         msg_box.setText("You hit a mine! Game Over.")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.button(QMessageBox.Ok).setText("Dismiss")
+        msg_box.button(QMessageBox.Ok).setText("Play again")
         
         # Connect the buttonClicked signal to our reset function
         msg_box.buttonClicked.connect(self.reset_game_after_popup)
