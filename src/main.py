@@ -7,8 +7,6 @@ It should mainly be reduced to function calls to other modules.
 
 import sys,os
 
-from time import sleep
-
 from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel,
                                 QLineEdit, QSpacerItem, QSizePolicy, QSlider, QFrame, QMessageBox)
 from PySide6.QtCore import QTimer, Qt
@@ -37,6 +35,8 @@ class CasinoMines(QWidget, GameStyle):
         self.header = Header()
         self.game_in_progress = False
         self.clicked_cells = set()
+        self.cells_clicked = 0 # is this not redudant?
+        
         
     
         # Set up the main UI window
@@ -66,7 +66,9 @@ class CasinoMines(QWidget, GameStyle):
     def configuration_panel(self) -> None:
         """ Defines left-most menu. Try to move this to its own file."""
 
-        left_layout, self.cash_out_button= self.config_panel.set_up_panel()
+        left_layout, self.cash_out_button = self.config_panel.set_up_panel()
+
+        self.cash_out_button.clicked.connect(self.handle_cash_out)
 
         # Start button is added from here to avoid circular import (it needs to call start_game)
         self.start_button = QPushButton("Start Game")
@@ -81,10 +83,16 @@ class CasinoMines(QWidget, GameStyle):
         """Function executed when the user clicks on the start button"""
         self.num_mines = self.config_panel.get_num_mines()
         self.create_minefield()
-        self.start_button.setDisabled(False) # Disable start button
+        self.start_button.setDisabled(True) # Disable start button
         self.grid_logic.disable_grid(False) # Activate the grid
-        self.game_in_progress = True
+        self.game_in_progress = True # Game is in progress
+        self.cells_clicked = 0
+        #self.clicked_cells.clear()
         self.config_panel.reset_for_new_game()
+        self.config_panel.disable_cash_out_button()
+        self.config_panel.deactivate_btns()
+
+        print(self.cells_clicked)
 
 
     def create_minefield(self) -> None:
@@ -94,9 +102,10 @@ class CasinoMines(QWidget, GameStyle):
 
     def on_cell_click(self, row:int, col:int) -> None:
         """Function executed when the user clicks on a cell"""
-        self.clicked_cells.add((row, col))
         if not self.game_in_progress:
             return
+        self.clicked_cells.add((row, col))
+        self.cells_clicked += 1
         if self.bombs_logic.is_mine(row, col):
             self.grid_logic.set_button_state(row, col, "💣", "background-color: red; font-size: 24px;")
             self.game_over()
@@ -105,6 +114,9 @@ class CasinoMines(QWidget, GameStyle):
             self.grid_logic.disable_button(row, col)
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()
+
+            if self.cells_clicked == 1:
+                self.config_panel.enable_cash_out_button()
             
     def game_over(self):
         """ Defines behavior after user clicked on a cell with a mine"""
@@ -113,19 +125,38 @@ class CasinoMines(QWidget, GameStyle):
         # Showing all other mines
         mines_set = self.bombs_logic.set_of_mines()
         non_clicked_cells = set(self.grid_logic.cells.keys()).difference(self.clicked_cells)
+
+        # Reveling unclicked cells
         for row, col in non_clicked_cells:
             if (row, col) in mines_set:
-                self.grid_logic.set_button_state(row, col, "💣", "background-color: #f29696; font-size: 24px;")
+                self.grid_logic.set_button_state(row, col, "💣", "background-color: #ebcaca; font-size: 24px;")
             else:
-                self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #f2f296; font-size: 24px;")
+                self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #dedeb8; font-size: 24px;")
 
        # Deactivate corresponding widgets of the GUI
         self.grid_logic.disable_grid(True)
         self.show_GameOver_screen()
+    
+    def handle_cash_out(self):
+        """ Handle cash out action """
+        if self.game_in_progress and self.cells_clicked > 0:
+            self.config_panel.cash_out()
+            self.reset_game_after_cash_out()
+
+    def reset_game_after_cash_out(self):
+        """ Resets the game after cashing out """
+        self.game_in_progress = False
+        self.cells_clicked = 0
+        self.clicked_cells.clear()
+        self.grid_logic.reset_buttons()
+        self.config_panel.reset_for_new_game()
+        self.start_button.setDisabled(False)  # Enable start button for new game
+        self.grid_logic.disable_grid(True)
 
     def show_GameOver_screen(self):
         """ Shows a game over pop-up and resets the game when dismissed """
-        msg_box = QMessageBox(self)
+
+        msg_box = QMessageBox(self) # Pop-up window
         msg_box.setWindowTitle("Game Over")
         msg_box.setText("You hit a mine! Game Over.")
         msg_box.setIcon(QMessageBox.Information)
@@ -134,24 +165,23 @@ class CasinoMines(QWidget, GameStyle):
         
         # Connect the buttonClicked signal to our reset function
         msg_box.buttonClicked.connect(self.reset_game_after_popup)
-        
         msg_box.exec()
 
     def reset_game_after_popup(self):
         """ Resets the game after the pop-up is dismissed """
-        self.config_panel.activate_btns()
-        self.start_button.setDisabled(False)
-        self.config_panel.reset_bet()
-        self.wallet.reset_bet()
         self.reset_game()
 
     def reset_game(self):
-        """Reset the game state"""
+        """Reset the game state. Activated after end of game"""
         self.game_in_progress = False
+        self.cells_clicked = 0
+        self.clicked_cells.clear()
         self.grid_logic.reset_buttons()
         self.config_panel.reset_for_new_game()
-        self.start_button.setDisabled(True)
+        self.start_button.setDisabled(False)  # Enable start button for new game
         self.grid_logic.disable_grid(True)
+
+    
 
 
 
