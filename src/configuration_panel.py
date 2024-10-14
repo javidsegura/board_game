@@ -19,9 +19,11 @@ class ConfigurationPanel():
         self.num_mines = 1
         self.start_button = None
         self.cash_out_button = None
+        # vars for data
         self.betAmount = -1
         self.numMines = -1
         self.profit = 0
+        self.balanceBeforeChange = -1
         
 
     def set_up_panel(self) -> tuple[QVBoxLayout, QPushButton]:
@@ -121,6 +123,7 @@ class ConfigurationPanel():
             self.num_mines = self.mines_slider.value()
             print("\n\n\033[1mConfiguration:\033[0m\n")
             print(f"Current balance is {self.wallet.get_balance()}")
+            self.balanceBeforeChange = self.wallet.get_balance()
 
             if self.num_mines < 1 or self.num_mines > 24:
                 raise ValueError("Invalid number of mines. Try again!")
@@ -250,5 +253,8 @@ class ConfigurationPanel():
     
     def getProfit(self):
          return round(self.profit, 2)
+    
+    def getBalanceBeforeChange(self):
+        return self.balanceBeforeChange
 
 
