@@ -1,0 +1,17 @@
+
+
+
+- All cells have the same image
+- User does not have game stopped after he cashes out 
+- User does not get notified that it has to confirm before starting
+- Improper notification of bet invalidation
+- Cells do not fip
+
+- mine is bomb not mine
+- grid is board not grid
+
+
+
+
+
+- What control the hover over the cells?
