@@ -11,6 +11,8 @@ class Wallet:
         self.current_bet = 0 # Current bet
         self.current_multiplier = 1 # Current multiplier
         self.profit = 0 # Current profit
+        self.prior_profit = 0 # Prior profit
+        self.prior_multiplier = 1 # Prior multiplier
 
     def place_bet(self, amount):
         print(f"Placing bet of {amount}")
@@ -23,7 +25,10 @@ class Wallet:
     def cash_out(self):
         winnings = self.current_bet * self.current_multiplier
         self.balance += winnings
+        self.prior_profit = self.calculate_profit()
+        self.prior_multiplier = self.current_multiplier
         self.reset_bet()
+
         return winnings
 
     def reset_bet(self):

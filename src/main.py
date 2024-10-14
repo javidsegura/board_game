@@ -20,7 +20,7 @@ from multiplier import MultiplierFunc
 from wallet import Wallet
 from configuration_panel import ConfigurationPanel
 from header import Header
-
+from sound_effects import SoundEffects
     
 
 class CasinoMines(QWidget, GameStyle):
@@ -33,11 +33,10 @@ class CasinoMines(QWidget, GameStyle):
         self.config_panel = ConfigurationPanel()
         self.wallet = Wallet()
         self.header = Header()
+        self.sound_effects = SoundEffects()
         self.game_in_progress = False
         self.clicked_cells = set()
         self.cells_clicked = 0 # is this not redudant?
-        
-        
     
         # Set up the main UI window
         self.setWindowTitle("CasinoMines Game")
@@ -47,7 +46,6 @@ class CasinoMines(QWidget, GameStyle):
         # Create the main layout
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
-
 
         # Setup the configuration panel
         self.main_layout.addWidget(self.config_panel.header_element())
@@ -65,7 +63,6 @@ class CasinoMines(QWidget, GameStyle):
 
     def configuration_panel(self) -> None:
         """ Defines left-most menu. Try to move this to its own file."""
-
         left_layout, self.cash_out_button = self.config_panel.set_up_panel()
         self.cash_out_button.clicked.connect(self.handle_cash_out)
 
@@ -89,7 +86,6 @@ class CasinoMines(QWidget, GameStyle):
         #self.clicked_cells.clear()
         self.config_panel.reset_for_new_game()
         self.config_panel.disable_cash_out_button()
-        print(self.cells_clicked)
 
     def create_minefield(self) -> None:
         """Create set of mines in the grid"""
@@ -103,10 +99,10 @@ class CasinoMines(QWidget, GameStyle):
         self.clicked_cells.add((row, col))
         self.cells_clicked += 1
         if self.bombs_logic.is_mine(row, col):
-            self.grid_logic.set_button_state(row, col,True)
+            self.grid_logic.set_button_state(row, col,True, revealed=False)
             self.game_over()
         else:
-            self.grid_logic.set_button_state(row, col, False)
+            self.grid_logic.set_button_state(row, col, False, revealed=False)
             self.grid_logic.disable_button(row, col)
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()
@@ -130,18 +126,37 @@ class CasinoMines(QWidget, GameStyle):
         """ Controls what happens when the user clicks on the cash out button"""
         if self.game_in_progress and self.cells_clicked > 0:
             self.grid_logic.reveal_cells(self.bombs_logic.set_of_mines(), self.clicked_cells)
-            self.config_panel.cash_out()
             self.show_CashOut_screen()
+            self.config_panel.cash_out()
 
     def show_CashOut_screen(self):
         """ Shows a game over pop-up and resets the game when dismissed """
-        msg_box = QMessageBox(self) # Pop-up window
+        msg_box = QMessageBox(self)
         msg_box.setWindowTitle("You win!")
-        msg_box.setText(f"You have won! ")
-        msg_box.setIcon(QMessageBox.Information)
+
+        self.sound_effects.play_cashout() 
+
+        # Create a custom layout for the message box
+        layout = QVBoxLayout()
+
+        # Add a large title with the multiplier
+        multiplier_label = QLabel(f"{self.config_panel.get_prior_multiplier()}x")
+        multiplier_label.setAlignment(Qt.AlignCenter)
+        multiplier_label.setStyleSheet("font-size: 48px; font-weight: bold; margin-bottom: 10px;")
+        layout.addWidget(multiplier_label)
+
+        # Add text with the money won
+        profit_label = QLabel(f"You won ${self.config_panel.get_prior_profit():.2f}")
+        profit_label.setAlignment(Qt.AlignCenter)
+        profit_label.setStyleSheet("font-size: 24px; margin-bottom: 20px;")
+        layout.addWidget(profit_label)
+
+        # Set the custom layout to the message box
+        msg_box.layout().addLayout(layout, 0, 0, 1, msg_box.layout().columnCount())
+
         msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.button(QMessageBox.Ok).setText("Play again")
-        
+        msg_box.button(QMessageBox.Ok).setText("Continue")
+
         # Connect the buttonClicked signal to our reset function
         msg_box.buttonClicked.connect(self.reset_game_after_cash_out)
         msg_box.exec()
@@ -164,7 +179,7 @@ class CasinoMines(QWidget, GameStyle):
         """ Shows a game over pop-up and resets the game when dismissed """
         msg_box = QMessageBox(self) # Pop-up window
         msg_box.setWindowTitle("Game Over")
-        msg_box.setText("You hit a mine! Game Over.")
+        msg_box.setText("You have hit a mine! Game Over.")
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.button(QMessageBox.Ok).setText("Play again")

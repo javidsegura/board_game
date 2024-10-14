@@ -49,7 +49,7 @@ class GridLogic:
             cell.setStyleSheet("")  # Reset style to default version
             cell.setProperty("class", "grid-cell")  # Reapply the grid-cell class
 
-    def set_button_state(self, row: int, col: int, is_bomb: bool) -> None:
+    def set_button_state(self, row: int, col: int, is_bomb: bool, revealed: bool = False) -> None:
         """ Changes the image and style of a cell accessing its buttons via its coordinates """
         cell = self.cells[(row, col)]
         
@@ -61,6 +61,9 @@ class GridLogic:
            
         cell.setIcon(icon)
         cell.setIconSize(QSize(120, 120))  # Adjust size as needed
+
+        opacity = "1.0" if revealed else "0.5"
+        cell.setStyleSheet(f"background-color: rgba(255, 255, 255, {opacity});")
         cell.setProperty("class", "grid-cell")
 
 
@@ -73,6 +76,7 @@ class GridLogic:
         # Revealing unclicked cells
         for row, col in non_clicked_cells:
             if (row, col) in set_of_mines:
-                self.set_button_state(row, col, True)
+                self.set_button_state(row, col, True, revealed=True)
             else:
-                self.set_button_state(row, col, False)
+                self.set_button_state(row, col, False, revealed=True)
+

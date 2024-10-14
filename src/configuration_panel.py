@@ -231,4 +231,12 @@ class ConfigurationPanel():
         """ Restart the cash out button"""
         self.cash_out_button.setText("Cash Out")
 
+    def get_prior_profit(self):
+        """ Get the profit"""
+        return self.wallet.prior_profit
+    
+    def get_prior_multiplier(self):
+        """ Get the multiplier"""
+        return self.wallet.prior_multiplier
+
 
