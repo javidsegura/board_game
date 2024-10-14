@@ -67,7 +67,6 @@ class CasinoMines(QWidget, GameStyle):
         """ Defines left-most menu. Try to move this to its own file."""
 
         left_layout, self.cash_out_button = self.config_panel.set_up_panel()
-
         self.cash_out_button.clicked.connect(self.handle_cash_out)
 
         # Start button is added from here to avoid circular import (it needs to call start_game)
@@ -90,9 +89,7 @@ class CasinoMines(QWidget, GameStyle):
         #self.clicked_cells.clear()
         self.config_panel.reset_for_new_game()
         self.config_panel.disable_cash_out_button()
-
         print(self.cells_clicked)
-
 
     def create_minefield(self) -> None:
         """Create set of mines in the grid"""
@@ -114,33 +111,40 @@ class CasinoMines(QWidget, GameStyle):
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()
 
-            if self.cells_clicked == 1:
-                self.config_panel.enable_cash_out_button()
+            if self.cells_clicked >= 1:
+                self.config_panel.activate_cash_out_button()
+                self.config_panel.increase_cash_out_button()
             
     def game_over(self):
         """ Defines behavior after user clicked on a cell with a mine"""
         self.game_in_progress = False
 
-        # Showing all other mines
-        mines_set = self.bombs_logic.set_of_mines()
-        non_clicked_cells = set(self.grid_logic.cells.keys()).difference(self.clicked_cells)
-
         # Reveling unclicked cells
-        for row, col in non_clicked_cells:
-            if (row, col) in mines_set:
-                self.grid_logic.set_button_state(row, col, "💣", "background-color: #ebcaca; font-size: 24px;")
-            else:
-                self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #dedeb8; font-size: 24px;")
+        self.grid_logic.reveal_cells(self.bombs_logic.set_of_mines(), self.clicked_cells)
 
-       # Deactivate corresponding widgets of the GUI
+        # Deactivate corresponding widgets of the GUI
         self.grid_logic.disable_grid(True)
         self.show_GameOver_screen()
     
     def handle_cash_out(self):
-        """ Handle cash out action """
+        """ Controls what happens when the user clicks on the cash out button"""
         if self.game_in_progress and self.cells_clicked > 0:
+            self.grid_logic.reveal_cells(self.bombs_logic.set_of_mines(), self.clicked_cells)
             self.config_panel.cash_out()
-            self.reset_game_after_cash_out()
+            self.show_CashOut_screen()
+
+    def show_CashOut_screen(self):
+        """ Shows a game over pop-up and resets the game when dismissed """
+        msg_box = QMessageBox(self) # Pop-up window
+        msg_box.setWindowTitle("You win!")
+        msg_box.setText(f"You have won! ")
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.button(QMessageBox.Ok).setText("Play again")
+        
+        # Connect the buttonClicked signal to our reset function
+        msg_box.buttonClicked.connect(self.reset_game_after_cash_out)
+        msg_box.exec()
 
     def reset_game_after_cash_out(self):
         """ Resets the game after cashing out """
@@ -154,12 +158,10 @@ class CasinoMines(QWidget, GameStyle):
         self.start_button.setDisabled(True)
         self.grid_logic.disable_grid(True)
         self.config_panel.disable_cash_out_button()
-        
 
 
     def show_GameOver_screen(self):
         """ Shows a game over pop-up and resets the game when dismissed """
-
         msg_box = QMessageBox(self) # Pop-up window
         msg_box.setWindowTitle("Game Over")
         msg_box.setText("You hit a mine! Game Over.")
@@ -176,10 +178,6 @@ class CasinoMines(QWidget, GameStyle):
         self.config_panel.activate_btns()
         self.config_panel.reset_bet()
         self.wallet.reset_bet()
-        self.reset_game()
-
-    def reset_game(self):
-        """Reset the game state. Activated after end of game"""
         self.game_in_progress = False
         self.cells_clicked = 0
         self.clicked_cells.clear()
@@ -188,6 +186,7 @@ class CasinoMines(QWidget, GameStyle):
         self.start_button.setDisabled(True)
         self.grid_logic.disable_grid(True)
         self.config_panel.disable_cash_out_button()
+        self.config_panel.restart_cash_out_button()
 
     
 
