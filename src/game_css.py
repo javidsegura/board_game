@@ -49,5 +49,8 @@ class GameStyle:
                 background-color: #888888;
                 color: #aaaaaa;
             }
+            QPushButton.grid-cell {
+                border-radius: 10px;
+            }
         """
 

@@ -103,10 +103,10 @@ class CasinoMines(QWidget, GameStyle):
         self.clicked_cells.add((row, col))
         self.cells_clicked += 1
         if self.bombs_logic.is_mine(row, col):
-            self.grid_logic.set_button_state(row, col, "💣", "background-color: red; font-size: 24px;")
+            self.grid_logic.set_button_state(row, col,True)
             self.game_over()
         else:
-            self.grid_logic.set_button_state(row, col, "⭐️", "background-color: #f2f230; font-size: 24px;")
+            self.grid_logic.set_button_state(row, col, False)
             self.grid_logic.disable_button(row, col)
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()

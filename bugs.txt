@@ -1,13 +1,16 @@
 
 
 
-- Cash out button should show profit 
+- All cells have the same image
 - User does not have game stopped after he cashes out 
 - User does not get notified that it has to confirm before starting
 - Improper notification of bet invalidation
+- Cells do not fip
 
-- The user never sees a final screen when he wins
-      - It should be able to click 'new game' from there
+- mine is bomb not mine
+- grid is board not grid
+
+
 
 
 
