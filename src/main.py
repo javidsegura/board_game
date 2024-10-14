@@ -5,7 +5,7 @@ It should mainly be reduced to function calls to other modules.
 
 """
 
-import sys,os
+import sys,os, json
 
 from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel,
                                 QLineEdit, QSpacerItem, QSizePolicy, QSlider)
