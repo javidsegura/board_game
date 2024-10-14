@@ -27,6 +27,7 @@ class Wallet:
         return winnings
 
     def reset_bet(self):
+        """ Reset wallet acount values"""
         self.current_bet = 0
         self.current_multiplier = 1
         self.profit = 0
