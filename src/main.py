@@ -90,7 +90,6 @@ class CasinoMines(QWidget, GameStyle):
         #self.clicked_cells.clear()
         self.config_panel.reset_for_new_game()
         self.config_panel.disable_cash_out_button()
-        self.config_panel.deactivate_btns()
 
         print(self.cells_clicked)
 
@@ -145,13 +144,18 @@ class CasinoMines(QWidget, GameStyle):
 
     def reset_game_after_cash_out(self):
         """ Resets the game after cashing out """
+        self.config_panel.activate_btns()
+        self.config_panel.reset_bet()
         self.game_in_progress = False
         self.cells_clicked = 0
         self.clicked_cells.clear()
         self.grid_logic.reset_buttons()
         self.config_panel.reset_for_new_game()
-        self.start_button.setDisabled(False)  # Enable start button for new game
+        self.start_button.setDisabled(True)
         self.grid_logic.disable_grid(True)
+        self.config_panel.disable_cash_out_button()
+        
+
 
     def show_GameOver_screen(self):
         """ Shows a game over pop-up and resets the game when dismissed """
@@ -169,6 +173,9 @@ class CasinoMines(QWidget, GameStyle):
 
     def reset_game_after_popup(self):
         """ Resets the game after the pop-up is dismissed """
+        self.config_panel.activate_btns()
+        self.config_panel.reset_bet()
+        self.wallet.reset_bet()
         self.reset_game()
 
     def reset_game(self):
@@ -178,8 +185,9 @@ class CasinoMines(QWidget, GameStyle):
         self.clicked_cells.clear()
         self.grid_logic.reset_buttons()
         self.config_panel.reset_for_new_game()
-        self.start_button.setDisabled(False)  # Enable start button for new game
+        self.start_button.setDisabled(True)
         self.grid_logic.disable_grid(True)
+        self.config_panel.disable_cash_out_button()
 
     
 

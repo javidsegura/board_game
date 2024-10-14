@@ -168,7 +168,7 @@ class ConfigurationPanel():
         self.disable_cash_out_button()
         
     def reset_for_new_game(self):
-        """Reset the panel for a new game"""
+        """Reset the header for a new game"""
         self.cash_out_button.setDisabled(True)
         self.header.update_profit(0)
         self.header.update_multiplier(1)
@@ -186,11 +186,10 @@ class ConfigurationPanel():
         self.wallet.cash_out()
         self.header.update_balance(self.wallet.get_balance())
         self.reset_bet()
-        self.activate_btns()
 
 
     def reset_bet(self) -> None:
-        """ Reset the multiplier, bet and proft to intiial value"""
+        """ Reset the multiplier, bet and proft to intiial value in the label"""
         self.wallet.reset_bet()
         self.header.update_profit(0)
         self.header.update_multiplier(1)
