@@ -23,7 +23,7 @@ class GridLogic:
                 cell = QPushButton("") # cell button
                 cell.setFixedSize(120, 120)
                 cell.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
-                
+                cell.setProperty("class", "grid-cell")
                 # Ensure the button has no text or icon
                 self.grid_layout.addWidget(cell, row, col)
                 self.cells[(row, col)] = cell
@@ -36,6 +36,7 @@ class GridLogic:
         return grid_container
         
     def disable_grid(self, disable: bool) -> None:
+        """ Disables all buttons in the grid """
         for cell in self.cells.values(): # values are the respective buttons
             cell.setDisabled(disable)
 
@@ -49,7 +50,7 @@ class GridLogic:
             cell.setStyleSheet("")  # Reset style to default version
             cell.setProperty("class", "grid-cell")  # Reapply the grid-cell class
 
-    def set_button_state(self, row: int, col: int, is_bomb: bool) -> None:
+    def set_button_state(self, row: int, col: int, is_bomb: bool, revealed: bool = False) -> None:
         """ Changes the image and style of a cell accessing its buttons via its coordinates """
         cell = self.cells[(row, col)]
         
@@ -61,7 +62,7 @@ class GridLogic:
            
         cell.setIcon(icon)
         cell.setIconSize(QSize(120, 120))  # Adjust size as needed
-        cell.setProperty("class", "grid-cell")
+        
 
 
     def disable_button(self, row:int, col:int) -> None:
@@ -73,6 +74,7 @@ class GridLogic:
         # Revealing unclicked cells
         for row, col in non_clicked_cells:
             if (row, col) in set_of_mines:
-                self.set_button_state(row, col, True)
+                self.set_button_state(row, col, True, revealed=True)
             else:
-                self.set_button_state(row, col, False)
+                self.set_button_state(row, col, False, revealed=True)
+

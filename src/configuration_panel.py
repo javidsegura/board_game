@@ -19,13 +19,12 @@ class ConfigurationPanel():
         self.start_button = None
         self.cash_out_button = None
         
-
     def set_up_panel(self) -> tuple[QVBoxLayout, QPushButton]:
         """ Invokes the different componenents of the configuration panel"""
         self.bet_panel()
         self.mines_panel()
-        self.confirm_btn()
         self.cash_out_btn()
+        self.confirm_btn()
         
         # Add spacing
         self.setup_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
@@ -38,7 +37,6 @@ class ConfigurationPanel():
         """ Sets up the header element"""
         return self.header.setup_header()
 
-    
     def bet_panel(self) -> None:
         """ Sets up the bet panel"""
         self.bet_label = QLabel("Bet Amount: ") # text label
@@ -104,6 +102,7 @@ class ConfigurationPanel():
         self.confirm_button = QPushButton("Confirm Selection")
         self.confirm_button.clicked.connect(self.confirm_selection)
         self.setup_layout.addWidget(self.confirm_button)
+        self.confirm_button.setStyleSheet("background-color: #ffcc00; color: #fffce3;")
 
         # Confirmation message
         self.confirmation_label = QLabel("")
@@ -125,13 +124,12 @@ class ConfigurationPanel():
                 raise ValueError("Bet amount exceeds wallet balance. Try again!")
         
             if bet_amount <= 0:
-                raise ValueError("Bet amount must be greater than 0. Try again!")  
+                raise ValueError("Bet amount must be greater than 0!")  
 
             self.multiplier_func = multiplier.MultiplierFunc(25, self.num_mines) # Call our multiplier function
             self.multiplier_generator = self.multiplier_func.get_next_multiplier() # Get the next multiplier
             self.update_multiplier() # Update the multiplier
             
-            self.show_confirmation(f"Confirmed set-up! m: {self.num_mines}, b: {bet_amount}")
             self.deactivate_btns()
             self.wallet.place_bet(bet_amount)
             self.header.update_balance(self.wallet.get_balance())
@@ -145,7 +143,10 @@ class ConfigurationPanel():
     
     def show_confirmation(self, message :str) -> None:
         """Print message on confirmation label"""
+        if message.strip().split()[:2] == ["Invalid", "literal"]:
+            message = "Provide an amount to bet"
         self.confirmation_label.setText(message)
+        self.confirmation_label.setStyleSheet("color: red; font-size: 18px;")
         QTimer.singleShot(3000, lambda: self.confirmation_label.setText("")) # Warning is cleared after 3 seconds
 
     def update_multiplier(self):
@@ -178,7 +179,8 @@ class ConfigurationPanel():
         self.cash_out_button.setDisabled(False)
 
     def increase_cash_out_button(self):
-        self.cash_out_button.setText(f"Cash Out: {round(self.wallet.calculate_profit(),2)}$")
+        self.cash_out_button.setText(f"Cash Out: {round(self.wallet.calculate_profit() + self.wallet.get_current_bet(),2)}$")
+        self.cash_out_button.setStyleSheet("background-color: #ffcc00; color: #fffce3;")
     
     def cash_out(self) -> None:
         """ Cash out the current bet and show in header"""
@@ -197,6 +199,7 @@ class ConfigurationPanel():
         self.bet_input.setDisabled(True) # Disable bet input
         self.mines_slider.setDisabled(True) # Disable mines slider
         self.confirm_button.setDisabled(True) # Disable confirm button
+        self.confirm_button.setStyleSheet("background-color: #888888; color: #aaaaaa;")
         for btn in self.percentages_btns:
             btn.setDisabled(True)
         self.cash_out_button.setDisabled(True)  
@@ -206,6 +209,7 @@ class ConfigurationPanel():
         self.bet_input.setDisabled(False) # Disable bet input
         self.mines_slider.setDisabled(False) # Disable mines slider
         self.confirm_button.setDisabled(False) # Disable confirm button
+        self.confirm_button.setStyleSheet("background-color: #ffcc00; color: #fffad1;")
         for btn in self.percentages_btns:
             btn.setDisabled(False)
         self.cash_out_button.setDisabled(False)
@@ -230,5 +234,14 @@ class ConfigurationPanel():
     def restart_cash_out_button(self):
         """ Restart the cash out button"""
         self.cash_out_button.setText("Cash Out")
+        self.cash_out_button.setStyleSheet("")
+
+    def get_prior_profit(self):
+        """ Get the profit"""
+        return self.wallet.prior_profit
+    
+    def get_prior_multiplier(self):
+        """ Get the multiplier"""
+        return self.wallet.prior_multiplier
 
 
