@@ -16,7 +16,7 @@ class GridLogic:
 
         for row in range(self.grid_size):
             for col in range(self.grid_size):
-                cell = QPushButton("")
+                cell = QPushButton("") # cell button
                 cell.setFixedSize(120, 120)
                 cell.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
                 self.grid_layout.addWidget(cell, row, col)

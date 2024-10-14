@@ -8,7 +8,8 @@ import header
 import multiplier
 
 class ConfigurationPanel():
-    """ Controls the configuration panel of the game"""
+    """ Controls the configuration panel of the game. 
+    All wallet elements's value in the header are also controlled here"""
     def __init__(self):
         super().__init__()
         self.setup_layout = QVBoxLayout()
@@ -163,8 +164,6 @@ class ConfigurationPanel():
         self.cash_out_button.clicked.connect(self.cash_out)
         self.setup_layout.addWidget(self.cash_out_button)
         self.cash_out_button.setDisabled(True)
-
-        
         
     def reset_for_new_game(self):
         """Reset the panel for a new game"""
@@ -209,5 +208,6 @@ class ConfigurationPanel():
         self.header.update_profit(self.wallet.calculate_profit())
 
     def set_start_button(self, button: QPushButton) -> None:
-        """ Set the start button reference """
+        """ Set the start button reference
+        Receives button from CasinoMines class"""
         self.start_button = button

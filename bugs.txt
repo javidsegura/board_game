@@ -1,7 +1,7 @@
 
 - You can cash out without having clicked a cell
 - User does not have game stopped after he cashes out 
-- You can start a game without a bet
+
 - The user never sees a final screen
       - It should be able to click 'new game' from there
 - Not all cells flip at the end of the game
