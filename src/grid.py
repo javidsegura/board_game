@@ -49,3 +49,13 @@ class GridLogic:
 
     def disable_button(self, row:int, col:int) -> None:
         self.cells[(row, col)].setDisabled(True)
+
+    def reveal_cells(self, set_of_mines: set, clicked_cells: set) -> None:
+        # Showing all other mines
+        non_clicked_cells = set(self.cells.keys()).difference(clicked_cells)
+        # Reveling unclicked cells
+        for row, col in non_clicked_cells:
+            if (row, col) in set_of_mines:
+                self.set_button_state(row, col, "💣", "background-color: #ebcaca; font-size: 24px;")
+            else:
+                self.set_button_state(row, col, "⭐️", "background-color: #dedeb8; font-size: 24px;")

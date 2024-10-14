@@ -165,7 +165,7 @@ class ConfigurationPanel():
         self.cash_out_button = QPushButton("Cash Out")
         self.cash_out_button.clicked.connect(self.cash_out)
         self.setup_layout.addWidget(self.cash_out_button)
-        self.disable_cash_out_button()
+        self.cash_out_button.setDisabled(True)  
         
     def reset_for_new_game(self):
         """Reset the header for a new game"""
@@ -173,20 +173,18 @@ class ConfigurationPanel():
         self.header.update_profit(0)
         self.header.update_multiplier(1)
 
-    def enable_cash_out_button(self):
+    def activate_cash_out_button(self):
         """ Enable the cash out button"""
         self.cash_out_button.setDisabled(False)
-    
-    def disable_cash_out_button(self):
-        """ Disable the cash out button"""
-        self.cash_out_button.setDisabled(True)
 
+    def increase_cash_out_button(self):
+        self.cash_out_button.setText(f"Cash Out: {round(self.wallet.calculate_profit(),2)}$")
+    
     def cash_out(self) -> None:
-        """ Cash out the current bet"""
+        """ Cash out the current bet and show in header"""
         self.wallet.cash_out()
         self.header.update_balance(self.wallet.get_balance())
-        self.reset_bet()
-
+        self.restart_cash_out_button()
 
     def reset_bet(self) -> None:
         """ Reset the multiplier, bet and proft to intiial value in the label"""
@@ -201,7 +199,7 @@ class ConfigurationPanel():
         self.confirm_button.setDisabled(True) # Disable confirm button
         for btn in self.percentages_btns:
             btn.setDisabled(True)
-        self.disable_cash_out_button()        
+        self.cash_out_button.setDisabled(True)  
         
     def activate_btns(self) -> None:
         """ Activate all buttons"""
@@ -210,7 +208,7 @@ class ConfigurationPanel():
         self.confirm_button.setDisabled(False) # Disable confirm button
         for btn in self.percentages_btns:
             btn.setDisabled(False)
-        self.cash_out_button.setDisabled(True)
+        self.cash_out_button.setDisabled(False)
 
     def update_profit(self) -> None:
         """ Update the profit label"""
@@ -220,3 +218,17 @@ class ConfigurationPanel():
         """ Set the start button reference
         Receives button from CasinoMines class"""
         self.start_button = button
+
+    def disable_cash_out_button(self):
+        """ Disable the cash out button"""
+        self.cash_out_button.setDisabled(True)
+
+    def enable_cash_out_button(self):
+        """ Enable the cash out button"""
+        self.cash_out_button.setDisabled(False)
+
+    def restart_cash_out_button(self):
+        """ Restart the cash out button"""
+        self.cash_out_button.setText("Cash Out")
+
+
