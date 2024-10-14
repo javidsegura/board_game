@@ -23,7 +23,7 @@ class GridLogic:
                 cell = QPushButton("") # cell button
                 cell.setFixedSize(120, 120)
                 cell.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
-                
+                cell.setProperty("class", "grid-cell")
                 # Ensure the button has no text or icon
                 self.grid_layout.addWidget(cell, row, col)
                 self.cells[(row, col)] = cell
@@ -36,6 +36,7 @@ class GridLogic:
         return grid_container
         
     def disable_grid(self, disable: bool) -> None:
+        """ Disables all buttons in the grid """
         for cell in self.cells.values(): # values are the respective buttons
             cell.setDisabled(disable)
 
@@ -61,10 +62,7 @@ class GridLogic:
            
         cell.setIcon(icon)
         cell.setIconSize(QSize(120, 120))  # Adjust size as needed
-
-        opacity = "1.0" if revealed else "0.5"
-        cell.setStyleSheet(f"background-color: rgba(255, 255, 255, {opacity});")
-        cell.setProperty("class", "grid-cell")
+        
 
 
     def disable_button(self, row:int, col:int) -> None:

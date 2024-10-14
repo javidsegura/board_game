@@ -16,7 +16,6 @@ from PySide6.QtGui import QFont
 from game_css import GameStyle
 from bombs import BombsLogic
 from grid import GridLogic
-from multiplier import MultiplierFunc
 from wallet import Wallet
 from configuration_panel import ConfigurationPanel
 from header import Header
@@ -100,8 +99,10 @@ class CasinoMines(QWidget, GameStyle):
         self.cells_clicked += 1
         if self.bombs_logic.is_mine(row, col):
             self.grid_logic.set_button_state(row, col,True, revealed=False)
+            self.sound_effects.play_lose()
             self.game_over()
         else:
+            self.sound_effects.play_click()
             self.grid_logic.set_button_state(row, col, False, revealed=False)
             self.grid_logic.disable_button(row, col)
             self.config_panel.update_multiplier()
@@ -134,19 +135,20 @@ class CasinoMines(QWidget, GameStyle):
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("You win!")
 
-        self.sound_effects.play_cashout() 
+        self.sound_effects.play_win() 
 
         # Create a custom layout for the message box
         layout = QVBoxLayout()
 
         # Add a large title with the multiplier
-        multiplier_label = QLabel(f"{self.config_panel.get_prior_multiplier()}x")
+        multiplier_label = QLabel(f"x{self.config_panel.get_prior_multiplier()}")
+        
         multiplier_label.setAlignment(Qt.AlignCenter)
-        multiplier_label.setStyleSheet("font-size: 48px; font-weight: bold; margin-bottom: 10px;")
+        multiplier_label.setStyleSheet("font-size: 78px; font-weight: bold; margin-bottom: 10px; color: #ffcc00;")
         layout.addWidget(multiplier_label)
 
         # Add text with the money won
-        profit_label = QLabel(f"You won ${self.config_panel.get_prior_profit():.2f}")
+        profit_label = QLabel(f"You Won <span style='color: #ffcc00;'>${self.config_panel.get_prior_profit():.2f}</span>")
         profit_label.setAlignment(Qt.AlignCenter)
         profit_label.setStyleSheet("font-size: 24px; margin-bottom: 20px;")
         layout.addWidget(profit_label)
@@ -155,7 +157,7 @@ class CasinoMines(QWidget, GameStyle):
         msg_box.layout().addLayout(layout, 0, 0, 1, msg_box.layout().columnCount())
 
         msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.button(QMessageBox.Ok).setText("Continue")
+        msg_box.button(QMessageBox.Ok).setText("Play again")
 
         # Connect the buttonClicked signal to our reset function
         msg_box.buttonClicked.connect(self.reset_game_after_cash_out)
@@ -177,18 +179,31 @@ class CasinoMines(QWidget, GameStyle):
 
     def show_GameOver_screen(self):
         """ Shows a game over pop-up and resets the game when dismissed """
-        msg_box = QMessageBox(self) # Pop-up window
-        msg_box.setWindowTitle("Game Over")
-        msg_box.setText("You have hit a mine! Game Over.")
-        msg_box.setIcon(QMessageBox.Information)
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("You clicked on a bomb!")
+
+        # Create a custom layout for the message box
+        layout = QVBoxLayout()
+
+        # Add a large title with the multiplier
+        multiplier_label = QLabel(f"BOMB!")
+        
+        multiplier_label.setAlignment(Qt.AlignCenter)
+        multiplier_label.setStyleSheet("font-size: 78px; font-weight: bold; margin-bottom: 10px; color: red;")
+        layout.addWidget(multiplier_label)
+
+        # Set the custom layout to the message box
+        msg_box.layout().addLayout(layout, 0, 0, 1, msg_box.layout().columnCount())
+
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.button(QMessageBox.Ok).setText("Play again")
-        
+
         # Connect the buttonClicked signal to our reset function
-        msg_box.buttonClicked.connect(self.reset_game_after_popup)
+        msg_box.buttonClicked.connect(self.reset_game_after_gameover)
         msg_box.exec()
 
-    def reset_game_after_popup(self):
+
+    def reset_game_after_gameover(self):
         """ Resets the game after the pop-up is dismissed """
         self.config_panel.activate_btns()
         self.config_panel.reset_bet()
