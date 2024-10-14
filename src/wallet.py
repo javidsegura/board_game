@@ -47,4 +47,8 @@ class Wallet:
     def calculate_profit(self):
         print(f"Calculating profit: {self.current_bet} * {self.current_multiplier}")
         self.profit = self.current_bet * self.current_multiplier - self.current_bet
+        print(f"Profit: {self.profit}\n")
         return self.profit
+    
+    def getBalance(self):
+        return self.balance

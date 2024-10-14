@@ -7,6 +7,7 @@ import wallet
 import header
 import multiplier
 
+
 class ConfigurationPanel():
     """ Controls the configuration panel of the game. 
     All wallet elements's value in the header are also controlled here"""
@@ -18,6 +19,9 @@ class ConfigurationPanel():
         self.num_mines = 1
         self.start_button = None
         self.cash_out_button = None
+        self.betAmount = -1
+        self.numMines = -1
+        self.profit = 0
         
 
     def set_up_panel(self) -> tuple[QVBoxLayout, QPushButton]:
@@ -115,7 +119,7 @@ class ConfigurationPanel():
         try:
             bet_amount = int(self.bet_input.text())
             self.num_mines = self.mines_slider.value()
-
+            print("\n\n\033[1mConfiguration:\033[0m\n")
             print(f"Current balance is {self.wallet.get_balance()}")
 
             if self.num_mines < 1 or self.num_mines > 24:
@@ -135,6 +139,11 @@ class ConfigurationPanel():
             self.deactivate_btns()
             self.wallet.place_bet(bet_amount)
             self.header.update_balance(self.wallet.get_balance())
+
+            # boris test
+            print(f"Mines: {self.num_mines}")
+            self.betAmount = bet_amount
+            self.numMines = self.num_mines
 
             # If start button has been created, activate it
             if self.start_button:
@@ -213,6 +222,7 @@ class ConfigurationPanel():
     def update_profit(self) -> None:
         """ Update the profit label"""
         self.header.update_profit(self.wallet.calculate_profit())
+        self.profit = self.wallet.calculate_profit()
 
     def set_start_button(self, button: QPushButton) -> None:
         """ Set the start button reference
@@ -230,5 +240,15 @@ class ConfigurationPanel():
     def restart_cash_out_button(self):
         """ Restart the cash out button"""
         self.cash_out_button.setText("Cash Out")
+    
+    # returning bet and mines for data.py
+    def getBet(self):
+        return self.betAmount
+    
+    def getBombs(self):
+        return self.numMines
+    
+    def getProfit(self):
+         return round(self.profit, 2)
 
 

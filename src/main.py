@@ -20,6 +20,7 @@ from multiplier import MultiplierFunc
 from wallet import Wallet
 from configuration_panel import ConfigurationPanel
 from header import Header
+from data import UserData
 
     
 
@@ -29,13 +30,18 @@ class CasinoMines(QWidget, GameStyle):
         super().__init__()
         self.grid_size = 5
         self.bombs_logic = BombsLogic(self.grid_size)
-        self.grid_logic = GridLogic(self.grid_size, self.on_cell_click)
+        self.grid_logic = GridLogic(self.grid_size, self.on_cell_click) #call data.py after this for profit
         self.config_panel = ConfigurationPanel()
         self.wallet = Wallet()
         self.header = Header()
         self.game_in_progress = False
         self.clicked_cells = set()
         self.cells_clicked = 0 # is this not redudant?
+        # variables for data
+        self.gamesPlayed = 0
+        self.bombHit = False
+        self.balanceBefore = -1
+
         
         
     
@@ -55,7 +61,11 @@ class CasinoMines(QWidget, GameStyle):
         self.game_layout = QHBoxLayout()
         self.main_layout.addLayout(self.game_layout)
 
-        self.configuration_panel()
+        self.configuration_panel() #call data.py after for bet and bomb amounts
+        
+        # set up data processing
+        self.user_data = UserData()
+        self.user_data.initialize_csv()
 
         # Setup the game grid
         self.game_layout.addLayout(self.grid_logic.setup_grid()) 
@@ -65,6 +75,7 @@ class CasinoMines(QWidget, GameStyle):
 
     def configuration_panel(self) -> None:
         """ Defines left-most menu. Try to move this to its own file."""
+
 
         left_layout, self.cash_out_button = self.config_panel.set_up_panel()
         self.cash_out_button.clicked.connect(self.handle_cash_out)
@@ -80,6 +91,9 @@ class CasinoMines(QWidget, GameStyle):
 
     def start_game(self):
         """Function executed when the user clicks on the start button"""
+        self.gamesPlayed += 1
+        print(f"\n\n\033[1mGame {self.gamesPlayed}:\033[0m\n")
+
         self.num_mines = self.config_panel.get_num_mines()
         self.create_minefield()
         self.start_button.setDisabled(True) # Disable start button
@@ -89,7 +103,6 @@ class CasinoMines(QWidget, GameStyle):
         #self.clicked_cells.clear()
         self.config_panel.reset_for_new_game()
         self.config_panel.disable_cash_out_button()
-        print(self.cells_clicked)
 
     def create_minefield(self) -> None:
         """Create set of mines in the grid"""
@@ -104,9 +117,11 @@ class CasinoMines(QWidget, GameStyle):
         self.cells_clicked += 1
         if self.bombs_logic.is_mine(row, col):
             self.grid_logic.set_button_state(row, col,True)
+            self.bombHit = True
             self.game_over()
         else:
             self.grid_logic.set_button_state(row, col, False)
+            self.bombHit = False
             self.grid_logic.disable_button(row, col)
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()
@@ -117,6 +132,10 @@ class CasinoMines(QWidget, GameStyle):
             
     def game_over(self):
         """ Defines behavior after user clicked on a cell with a mine"""
+        # adding userData to csv if bomb clicked
+        self.add_user_data()
+
+
         self.game_in_progress = False
 
         # Reveling unclicked cells
@@ -128,6 +147,9 @@ class CasinoMines(QWidget, GameStyle):
     
     def handle_cash_out(self):
         """ Controls what happens when the user clicks on the cash out button"""
+        # adding userData to csv if cashed out
+        self.add_user_data()
+
         if self.game_in_progress and self.cells_clicked > 0:
             self.grid_logic.reveal_cells(self.bombs_logic.set_of_mines(), self.clicked_cells)
             self.config_panel.cash_out()
@@ -188,12 +210,15 @@ class CasinoMines(QWidget, GameStyle):
         self.config_panel.disable_cash_out_button()
         self.config_panel.restart_cash_out_button()
 
-    
+    def calcProfit(self):
+        if self.bombHit:
+            return - self.config_panel.getBet()
+        else:
+            return self.config_panel.getProfit()
 
-
-
-
-
+    # returning bet and mines for data.py
+    def add_user_data(self):
+        self.user_data.add_user_data(self.gamesPlayed, self.config_panel.getBet(), self.config_panel.getBombs(), self.wallet.get_balance(), self.calcProfit(), self.wallet.get_balance() + self.calcProfit())
 
 
 
