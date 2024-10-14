@@ -2,14 +2,13 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, 
                                 QLineEdit, QSpacerItem, QSizePolicy, QSlider, QFrame)
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
-from wallet import Wallet
 
 class Header():
       def __init__(self):
-        self.wallet = Wallet()
-        self.wallet_label = QLabel(f"Balance: ${self.wallet.get_balance():.2f}")
-        self.multiplier_label = QLabel("Multiplier: 1.00x")
-    
+        self.wallet_label = QLabel()
+        self.multiplier_label = QLabel()
+        self.profit_label = QLabel()
+
       def setup_header(self) -> QFrame:
         header_layout = QHBoxLayout() # Horizontal layout
         header_frame = QFrame() # Frame to contain the header
@@ -25,22 +24,28 @@ class Header():
         header_layout.addStretch()
 
         # Wallet balance
-        self.wallet_label.setFont(QFont("Arial", 14))
+        self.wallet_label.setText("Balance: 1000$")
         header_layout.addWidget(self.wallet_label)
 
         # Spacer
         header_layout.addSpacing(20)
 
         # Current multiplier
-        self.multiplier_label.setFont(QFont("Arial", 14))
+        self.multiplier_label.setText("Multiplier: 1x")
         header_layout.addWidget(self.multiplier_label)
+
+        # Profit
+        self.profit_label.setText("Profit: 0$")
+        header_layout.addWidget(self.profit_label)
 
         return header_frame
     
       def update_balance(self, new_balance):
-        print(new_balance, "  am about to update")
-        self.wallet_label.setText(f"Balance: ${new_balance:.2f}")
+        self.wallet_label.setText(f"Balance: {new_balance}$")
 
       def update_multiplier(self, new_multiplier):
-        print(new_multiplier, "  am about to update")
-        self.multiplier_label.setText(f"Multiplier: {new_multiplier:.2f}x")
+        self.multiplier_label.setText(f"Multiplier: {new_multiplier}x")
+
+      def update_profit(self, new_profit):
+        print(f"Profit is {new_profit}")
+        self.profit_label.setText(f"Profit: {new_profit}$")

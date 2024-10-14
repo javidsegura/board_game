@@ -10,8 +10,10 @@ class Wallet:
         self.balance = initial_balance # Money in the account
         self.current_bet = 0 # Current bet
         self.current_multiplier = 1 # Current multiplier
+        self.profit = 0 # Current profit
 
     def place_bet(self, amount):
+        print(f"Placing bet of {amount}")
         self.current_bet = amount
         self.balance -= amount
 
@@ -27,6 +29,7 @@ class Wallet:
     def reset_bet(self):
         self.current_bet = 0
         self.current_multiplier = 1
+        self.profit = 0
 
     def get_balance(self):
         return self.balance
@@ -39,3 +42,8 @@ class Wallet:
 
     def calculate_percentage_bet(self, percentage):
         return abs(self.balance) * (percentage / 100)
+    
+    def calculate_profit(self):
+        print(f"Calculating profit: {self.current_bet} * {self.current_multiplier}")
+        self.profit = self.current_bet * self.current_multiplier - self.current_bet
+        return self.profit

@@ -34,7 +34,9 @@ class GridLogic:
             cell.setDisabled(disable)
 
     def reset_buttons(self) -> None:
-        """ Reset the grid to its initial state for a new game"""
+        """ Reset the grid to its initial state for a new game
+        
+        TOdo: create a condition to only execute if not already empty"""
         for cell in self.cells.values():
             cell.setText("") # Eliminate icons
             cell.setEnabled(True) # Enable to click on the cell
