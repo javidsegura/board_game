@@ -17,6 +17,7 @@ class ConfigurationPanel():
         self.header = header.Header()
         self.num_mines = 1
         self.start_button = None
+        self.cash_out_button = None
         
 
     def set_up_panel(self) -> tuple[QVBoxLayout, QPushButton]:
@@ -135,9 +136,10 @@ class ConfigurationPanel():
             self.wallet.place_bet(bet_amount)
             self.header.update_balance(self.wallet.get_balance())
 
+            # If start button has been created, activate it
             if self.start_button:
                 self.start_button.setDisabled(False)
-
+            
         except ValueError as e:
             self.show_confirmation(str(e))
     
@@ -163,13 +165,21 @@ class ConfigurationPanel():
         self.cash_out_button = QPushButton("Cash Out")
         self.cash_out_button.clicked.connect(self.cash_out)
         self.setup_layout.addWidget(self.cash_out_button)
-        self.cash_out_button.setDisabled(True)
+        self.disable_cash_out_button()
         
     def reset_for_new_game(self):
         """Reset the panel for a new game"""
         self.cash_out_button.setDisabled(True)
         self.header.update_profit(0)
         self.header.update_multiplier(1)
+
+    def enable_cash_out_button(self):
+        """ Enable the cash out button"""
+        self.cash_out_button.setDisabled(False)
+    
+    def disable_cash_out_button(self):
+        """ Disable the cash out button"""
+        self.cash_out_button.setDisabled(True)
 
     def cash_out(self) -> None:
         """ Cash out the current bet"""
@@ -180,7 +190,7 @@ class ConfigurationPanel():
 
 
     def reset_bet(self) -> None:
-        """ Reset the game after cash out"""
+        """ Reset the multiplier, bet and proft to intiial value"""
         self.wallet.reset_bet()
         self.header.update_profit(0)
         self.header.update_multiplier(1)
@@ -192,7 +202,7 @@ class ConfigurationPanel():
         self.confirm_button.setDisabled(True) # Disable confirm button
         for btn in self.percentages_btns:
             btn.setDisabled(True)
-        self.cash_out_button.setDisabled(False)
+        self.disable_cash_out_button()        
         
     def activate_btns(self) -> None:
         """ Activate all buttons"""

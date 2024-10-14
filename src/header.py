@@ -48,4 +48,4 @@ class Header():
 
       def update_profit(self, new_profit):
         print(f"Profit is {new_profit}")
-        self.profit_label.setText(f"Profit: {new_profit}$")
+        self.profit_label.setText(f"Profit: {round(new_profit,2)}$")

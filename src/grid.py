@@ -43,7 +43,7 @@ class GridLogic:
             cell.setStyleSheet("") # Reset style to default version
 
     def set_button_state(self, row:int, col:int, text:str, style:str) -> None:
-        """ Changes the text and style of a cell """
+        """ Changes the text and style of a cell acessing its buttons via its coordinates """
         self.cells[(row, col)].setText(text)
         self.cells[(row, col)].setStyleSheet(style)
 

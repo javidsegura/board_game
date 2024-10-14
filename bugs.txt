@@ -1,8 +1,15 @@
 
-- You can cash out without having clicked a cell
-- User does not have game stopped after he cashes out 
+- After starting buttons, left panel is still active
 
+
+
+- User does not have game stopped after he cashes out 
+- User does not get notified that it has to confirm before starting
+- Improper notification of bet invalidation
 - The user never sees a final screen
       - It should be able to click 'new game' from there
 - Not all cells flip at the end of the game
 - Profit only works for the first game
+
+
+- What control the hover over the cells?
