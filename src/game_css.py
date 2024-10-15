@@ -45,12 +45,19 @@ class GameStyle:
             QPushButton#startButton:hover {
                 background-color: #ffd633;
             }
+            QPushButton#startButton:disabled {
+                background-color: #888888;
+                color: #aaaaaa;
+            }
             QPushButton:disabled {
                 background-color: #888888;
                 color: #aaaaaa;
             }
-            QPushButton.grid-cell {
+            QPushButton.grid-cell:e { 
                 border-radius: 10px;
+            }
+            QPushButton.grid-cell:disabled {
+                color: #aaaaaa;
             }
         """
 

@@ -3,13 +3,11 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, 
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
 
-
 class Header():
       def __init__(self):
         self.wallet_label = QLabel()
         self.multiplier_label = QLabel()
         self.profit_label = QLabel()
-        # self.profit = -1
 
       def setup_header(self) -> QFrame:
         header_layout = QHBoxLayout() # Horizontal layout
@@ -49,9 +47,6 @@ class Header():
         self.multiplier_label.setText(f"Multiplier: {new_multiplier}x")
 
       def update_profit(self, new_profit):
-        # print(f"Profit is {round(new_profit, 2)}")
+        print(f"Profit is {new_profit}")
         # self.profit = new_profit
         self.profit_label.setText(f"Profit: {round(new_profit,2)}$")
-
-      # def get_profit(self):
-      #    return self.profit
