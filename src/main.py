@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, 
                                 QLineEdit, QSpacerItem, QSizePolicy, QSlider, QFrame, QMessageBox)
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QWidget
 
 
 from game_css import GameStyle
@@ -23,7 +24,6 @@ from sound_effects import SoundEffects
     
 
 class CasinoMines(QWidget, GameStyle):
-    """ Controls the main window of the game"""
     def __init__(self):
         super().__init__()
         self.grid_size = 5
@@ -35,44 +35,59 @@ class CasinoMines(QWidget, GameStyle):
         self.sound_effects = SoundEffects()
         self.game_in_progress = False
         self.clicked_cells = set()
-        self.cells_clicked = 0 # is this not redudant?
-    
+        self.cells_clicked = 0
+
         # Set up the main UI window
         self.setWindowTitle("CasinoMines Game")
         self.setGeometry(100, 100, 1000, 700)
         self.setStyleSheet(GameStyle().get_stylesheet())
 
         # Create the main layout
-        self.main_layout = QVBoxLayout()
-        self.setLayout(self.main_layout)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setSpacing(20)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+
+        # Setup the header
+        self.main_layout.addWidget(self.config_panel.header_element())
+
+        # Create a container widget for the game content
+        self.game_container = QWidget()
+        self.game_layout = QHBoxLayout(self.game_container)
+        self.game_layout.setSpacing(20)
 
         # Setup the configuration panel
-        self.main_layout.addWidget(self.config_panel.header_element())
-        
-        self.game_layout = QHBoxLayout()
-        self.main_layout.addLayout(self.game_layout)
-
-        self.configuration_panel()
+        left_layout = self.configuration_panel()
+        left_widget = QWidget()
+        left_widget.setLayout(left_layout)
+        left_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.game_layout.addWidget(left_widget, 1)
 
         # Setup the game grid
-        self.game_layout.addLayout(self.grid_logic.setup_grid()) 
-        self.grid_logic.disable_grid(True)  # Initially disable the grid
+        grid_widget = QWidget()
+        grid_widget.setLayout(self.grid_logic.setup_grid())
+        grid_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.game_layout.addWidget(grid_widget, 2)
 
+        # Add the game container to the main layout
+        self.main_layout.addWidget(self.game_container)
+
+        self.grid_logic.disable_grid(True)  # Initially disable the grid
         self.show()
 
-    def configuration_panel(self) -> None:
-        """ Defines left-most menu. Try to move this to its own file."""
+    def configuration_panel(self):
+        """ Defines left-most menu. """
         left_layout, self.cash_out_button = self.config_panel.set_up_panel()
         self.cash_out_button.clicked.connect(self.handle_cash_out)
 
-        # Start button is added from here to avoid circular import (it needs to call start_game)
+        # Start button is added from here to avoid circular import
         self.start_button = QPushButton("Start Game")
-        self.start_button.setObjectName("startButton")  # Set object name for specific styling
+        self.start_button.setObjectName("startButton")
         self.start_button.clicked.connect(self.start_game)
         self.start_button.setDisabled(True)
         left_layout.addWidget(self.start_button)
-        self.game_layout.addLayout(left_layout)
         self.config_panel.set_start_button(self.start_button)
+
+        return left_layout
 
     def start_game(self):
         """Function executed when the user clicks on the start button"""
@@ -231,5 +246,3 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CasinoMines()
     sys.exit(app.exec())
-
-

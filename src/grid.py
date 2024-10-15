@@ -2,79 +2,61 @@ from PySide6.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QSpacerItem
 import os 
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QGridLayout, QPushButton, QSizePolicy
+from PySide6.QtCore import Qt
 
 class GridLogic:
-    def __init__(self, grid_size : int, on_cell_click : callable) -> None:
-        """
-        Parameters:
-            - grid_size: int
-            - on_button_click: function
-        """
+    def __init__(self, grid_size, on_cell_click):
         self.grid_size = grid_size
-        self.cells = {} # Set of all cells in the grid
-        self.on_cell_click = on_cell_click # function to call when ...
+        self.on_cell_click = on_cell_click
+        self.buttons = []
 
-    def setup_grid(self) -> QVBoxLayout:
-        self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(10)  # Spacing between cells
+    def setup_grid(self):
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(10)
+        grid_layout.setContentsMargins(0, 0, 0, 0)
 
         for row in range(self.grid_size):
             for col in range(self.grid_size):
-                cell = QPushButton("") # cell button
-                cell.setFixedSize(120, 120)
-                cell.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
-                cell.setProperty("class", "grid-cell")
-                # Ensure the button has no text or icon
-                self.grid_layout.addWidget(cell, row, col)
-                self.cells[(row, col)] = cell
+                button = QPushButton()
+                button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                button.setMinimumSize(50, 50)  # Set a minimum size for the buttons
+                button.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
+                grid_layout.addWidget(button, row, col)
+                self.buttons.append(button)
 
-        grid_container = QVBoxLayout()
-        grid_container.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-        grid_container.addLayout(self.grid_layout)
-        grid_container.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
-
-        return grid_container
-        
-    def disable_grid(self, disable: bool) -> None:
-        """ Disables all buttons in the grid """
-        for cell in self.cells.values(): # values are the respective buttons
-            cell.setDisabled(disable)
-
-    def reset_buttons(self) -> None:
-        """ Reset the grid to its initial state for a new game
-        TOdo: create a condition to only execute if not already empty"""
-
-        for cell in self.cells.values():
-            cell.setIcon(QIcon())  # Clear the icon
-            cell.setEnabled(True)  # Enable to click on the cell
-            cell.setStyleSheet("")  # Reset style to default version
-            cell.setProperty("class", "grid-cell")  # Reapply the grid-cell class
-
-    def set_button_state(self, row: int, col: int, is_bomb: bool, revealed: bool = False) -> None:
-        """ Changes the image and style of a cell accessing its buttons via its coordinates """
-        cell = self.cells[(row, col)]
-        
-        if is_bomb:
-            icon = QIcon("utils/imgs/cells/bomb.png")
-            
-        else:
-            icon = QIcon("utils/imgs/cells/star.png")
-           
-        cell.setIcon(icon)
-        cell.setIconSize(QSize(120, 120))  # Adjust size as needed
-        
+        return grid_layout
 
 
-    def disable_button(self, row:int, col:int) -> None:
-        self.cells[(row, col)].setDisabled(True)
+    def disable_grid(self, disable):
+        for button in self.buttons:
+            button.setDisabled(disable)
 
-    def reveal_cells(self, set_of_mines: set, clicked_cells: set) -> None:
-        # Showing all other mines
-        non_clicked_cells = set(self.cells.keys()).difference(clicked_cells)
-        # Revealing unclicked cells
-        for row, col in non_clicked_cells:
-            if (row, col) in set_of_mines:
-                self.set_button_state(row, col, True, revealed=True)
+    def reset_buttons(self):
+        for button in self.buttons:
+            button.setStyleSheet("")
+            button.setEnabled(True)
+
+    def set_button_state(self, row, col, is_mine, revealed):
+        button = self.buttons[row * self.grid_size + col]
+        if revealed:
+            if is_mine:
+                button.setStyleSheet("background-color: red;")
             else:
-                self.set_button_state(row, col, False, revealed=True)
+                button.setStyleSheet("background-color: green;")
+        else:
+            button.setStyleSheet("background-color: yellow;")
+
+    def disable_button(self, row, col):
+        self.buttons[row * self.grid_size + col].setDisabled(True)
+
+    def reveal_cells(self, mines, clicked_cells):
+        for row in range(self.grid_size):
+            for col in range(self.grid_size):
+                if (row, col) in mines:
+                    self.set_button_state(row, col, True, True)
+                elif (row, col) in clicked_cells:
+                    self.set_button_state(row, col, False, True)
+                else:
+                    self.set_button_state(row, col, False, False)
 
