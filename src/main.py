@@ -277,5 +277,4 @@ class CasinoMines(QWidget, GameStyle):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CasinoMines()
-    window = CasinoMines()
     sys.exit(app.exec())
