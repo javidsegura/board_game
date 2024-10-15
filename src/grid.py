@@ -4,6 +4,10 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QGridLayout, QPushButton, QSizePolicy
 from PySide6.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QSize
+
+
 
 class GridLogic:
     def __init__(self, grid_size, on_cell_click):
