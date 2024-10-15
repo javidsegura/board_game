@@ -35,6 +35,7 @@ class CasinoMines(QWidget, GameStyle):
         self.config_panel = ConfigurationPanel()
         self.wallet = Wallet()
         self.header = Header()
+        self.sound_effects = SoundEffects()
         self.game_in_progress = False
         self.clicked_cells = set()
         self.cells_clicked = 0 # is this not redudant?
@@ -46,7 +47,6 @@ class CasinoMines(QWidget, GameStyle):
         
     
         # Set up the main UI window
-        self.setWindowTitle("CasinoMines Game")
         self.setWindowTitle("CasinoMines Game")
         self.setGeometry(100, 100, 1000, 700)
         self.setStyleSheet(GameStyle().get_stylesheet())
@@ -119,17 +119,7 @@ class CasinoMines(QWidget, GameStyle):
         """Create set of mines in the grid"""
         self.grid_logic.reset_buttons() # Reset the grid
         self.bombs_logic.get_mines_set(self.num_mines) # Create set of mines
-    def create_minefield(self) -> None:
-        """Create set of mines in the grid"""
-        self.grid_logic.reset_buttons() # Reset the grid
-        self.bombs_logic.get_mines_set(self.num_mines) # Create set of mines
-
-    def on_cell_click(self, row:int, col:int) -> None:
-        """Function executed when the user clicks on a cell"""
-        if not self.game_in_progress:
-            return
-        self.clicked_cells.add((row, col))
-        self.cells_clicked += 1
+   
     def on_cell_click(self, row:int, col:int) -> None:
         """Function executed when the user clicks on a cell"""
         if not self.game_in_progress:
