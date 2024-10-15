@@ -18,25 +18,22 @@ class GridLogic:
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)  # Spacing between cells
 
-
-
         for row in range(self.grid_size):
             for col in range(self.grid_size):
-                cell = QPushButton("") # cell button
-                cell.setMinimumSize(150, 150)
-                cell.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
+                cell = QPushButton("")  # cell button
                 cell.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 cell.setProperty("class", "grid-cell")
-                # Ensure the button has no text or icon
+                cell.clicked.connect(lambda _, r=row, c=col: self.on_cell_click(r, c))
                 self.grid_layout.addWidget(cell, row, col)
                 self.cells[(row, col)] = cell
 
         grid_container = QVBoxLayout()
-        grid_container.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        grid_container.addStretch(1)
         grid_container.addLayout(self.grid_layout)
-        grid_container.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        grid_container.addStretch(1)
 
         return grid_container
+
         
     def disable_grid(self, disable: bool) -> None:
         """ Disables all buttons in the grid """
