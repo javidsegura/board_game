@@ -2,6 +2,9 @@ from PySide6.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QSpacerItem
 import os 
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
+import os 
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import QSize
 
 class GridLogic:
     def __init__(self, grid_size : int, on_cell_click : callable) -> None:
@@ -13,8 +16,10 @@ class GridLogic:
         self.grid_size = grid_size
         self.cells = {} # Set of all cells in the grid
         self.on_cell_click = on_cell_click # function to call when ...
+        self.cells = {} # Set of all cells in the grid
+        self.on_cell_click = on_cell_click # function to call when ...
 
-    def setup_grid(self) -> QVBoxLayout:
+    def setup_grid(self):
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)  # Spacing between cells
 
@@ -40,6 +45,10 @@ class GridLogic:
         
     def disable_grid(self, disable: bool) -> None:
         """ Disables all buttons in the grid """
+        for cell in self.cells.values(): # values are the respective buttons
+            cell.setDisabled(disable)
+        
+    def disable_grid(self, disable: bool) -> None:
         for cell in self.cells.values(): # values are the respective buttons
             cell.setDisabled(disable)
 
@@ -80,3 +89,13 @@ class GridLogic:
                 self.set_button_state(row, col, True, revealed=True)
             else:
                 self.set_button_state(row, col, False, revealed=True)
+
+    def reveal_cells(self, set_of_mines: set, clicked_cells: set) -> None:
+        # Showing all other mines
+        non_clicked_cells = set(self.cells.keys()).difference(clicked_cells)
+        # Revealing unclicked cells
+        for row, col in non_clicked_cells:
+            if (row, col) in set_of_mines:
+                self.set_button_state(row, col, True)
+            else:
+                self.set_button_state(row, col, False)
