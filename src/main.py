@@ -5,12 +5,13 @@ It should mainly be reduced to function calls to other modules.
 
 """
 
-import sys,os
+import sys,os, json
 
 from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel,
-                                QLineEdit, QSpacerItem, QSizePolicy, QSlider, QFrame, QMessageBox)
+                                QLineEdit, QSpacerItem, QSizePolicy, QSlider, QFrame, QMessageBox, QTabWidget)
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QWidget
 
 
 from game_css import GameStyle
@@ -19,7 +20,10 @@ from grid import GridLogic
 from wallet import Wallet
 from configuration_panel import ConfigurationPanel
 from header import Header
+from data import UserData
 from sound_effects import SoundEffects
+from data_tab import DataTab
+
     
 
 class CasinoMines(QWidget, GameStyle):
@@ -28,7 +32,7 @@ class CasinoMines(QWidget, GameStyle):
         super().__init__()
         self.grid_size = 5
         self.bombs_logic = BombsLogic(self.grid_size)
-        self.grid_logic = GridLogic(self.grid_size, self.on_cell_click)
+        self.grid_logic = GridLogic(self.grid_size, self.on_cell_click) #call data.py after this for profit
         self.config_panel = ConfigurationPanel()
         self.wallet = Wallet()
         self.header = Header()
@@ -36,46 +40,85 @@ class CasinoMines(QWidget, GameStyle):
         self.game_in_progress = False
         self.clicked_cells = set()
         self.cells_clicked = 0 # is this not redudant?
+        # variables for data
+        self.gamesPlayed = 0
+        self.bombHit = False
+
     
+        
         # Set up the main UI window
         self.setWindowTitle("CasinoMines Game")
         self.setGeometry(100, 100, 1000, 700)
         self.setStyleSheet(GameStyle().get_stylesheet())
 
         # Create the main layout
-        self.main_layout = QVBoxLayout()
-        self.setLayout(self.main_layout)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setSpacing(20)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+
+        # Setup the header
+        self.main_layout.addWidget(self.config_panel.header_element())
+
+        # Create a container widget for the game content
+        self.game_container = QWidget()
+        self.game_layout = QHBoxLayout(self.game_container)
+        self.game_layout.setSpacing(20)
 
         # Setup the configuration panel
-        self.main_layout.addWidget(self.config_panel.header_element())
-        
-        self.game_layout = QHBoxLayout()
-        self.main_layout.addLayout(self.game_layout)
-
-        self.configuration_panel()
+        left_layout = self.configuration_panel()
+        left_widget = QWidget()
+        left_widget.setLayout(left_layout)
+        left_widget.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.game_layout.addWidget(left_widget, 1)
 
         # Setup the game grid
-        self.game_layout.addLayout(self.grid_logic.setup_grid()) 
-        self.grid_logic.disable_grid(True)  # Initially disable the grid
+        grid_widget = QWidget()
+        grid_widget.setLayout(self.grid_logic.setup_grid())
+        grid_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.game_layout.addWidget(grid_widget, 2)
 
+
+        # Data Tab
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.game_container, "CasinoMines Game")
+
+        self.data_tab = DataTab()
+        # self.data_layout = QVBoxLayout()
+        # self.data_label = QLabel("Game Data")
+        # self.data_layout.addWidget(self.data_label)
+        # self.data_tab.setLayout(self.data_layout)
+
+        self.tabs.addTab(self.data_tab, "Game Data")
+
+        self.user_data = UserData()
+        self.user_data.initialize_csv()
+
+        # Add the game container to the main layout
+        self.main_layout.addWidget(self.tabs)
+
+        self.grid_logic.disable_grid(True)  # Initially disable the grid
         self.show()
 
-    def configuration_panel(self) -> None:
-        """ Defines left-most menu. Try to move this to its own file."""
+    def configuration_panel(self):
+        """ Defines left-most menu. """
         left_layout, self.cash_out_button = self.config_panel.set_up_panel()
         self.cash_out_button.clicked.connect(self.handle_cash_out)
 
-        # Start button is added from here to avoid circular import (it needs to call start_game)
+        # Start button is added from here to avoid circular import
         self.start_button = QPushButton("Start Game")
-        self.start_button.setObjectName("startButton")  # Set object name for specific styling
+        self.start_button.setObjectName("startButton")
         self.start_button.clicked.connect(self.start_game)
         self.start_button.setDisabled(True)
         left_layout.addWidget(self.start_button)
-        self.game_layout.addLayout(left_layout)
         self.config_panel.set_start_button(self.start_button)
+
+        return left_layout
 
     def start_game(self):
         """Function executed when the user clicks on the start button"""
+        self.gamesPlayed += 1
+        print(f"\n\n\033[1mGame {self.gamesPlayed}:\033[0m\n")
+
         self.num_mines = self.config_panel.get_num_mines()
         self.create_minefield()
         self.start_button.setDisabled(True) # Disable start button
@@ -90,7 +133,7 @@ class CasinoMines(QWidget, GameStyle):
         """Create set of mines in the grid"""
         self.grid_logic.reset_buttons() # Reset the grid
         self.bombs_logic.get_mines_set(self.num_mines) # Create set of mines
-
+   
     def on_cell_click(self, row:int, col:int) -> None:
         """Function executed when the user clicks on a cell"""
         if not self.game_in_progress:
@@ -99,12 +142,21 @@ class CasinoMines(QWidget, GameStyle):
         self.cells_clicked += 1
         if self.bombs_logic.is_mine(row, col):
             self.grid_logic.set_button_state(row, col,True, revealed=False)
+            self.bombHit = True
             self.sound_effects.play_lose()
             self.game_over()
         else:
             self.sound_effects.play_click()
             self.grid_logic.set_button_state(row, col, False, revealed=False)
+            self.bombHit = False
             self.grid_logic.disable_button(row, col)
+            self.config_panel.update_multiplier()
+            self.config_panel.update_profit()
+
+            if self.cells_clicked >= 1:
+                self.config_panel.activate_cash_out_button()
+                self.config_panel.increase_cash_out_button()
+            
             self.config_panel.update_multiplier()
             self.config_panel.update_profit()
 
@@ -114,6 +166,9 @@ class CasinoMines(QWidget, GameStyle):
             
     def game_over(self):
         """ Defines behavior after user clicked on a cell with a mine"""
+        # adding userData to csv if bomb clicked
+        self.add_user_data()
+
         self.game_in_progress = False
 
         # Reveling unclicked cells
@@ -125,6 +180,8 @@ class CasinoMines(QWidget, GameStyle):
     
     def handle_cash_out(self):
         """ Controls what happens when the user clicks on the cash out button"""
+        self.add_user_data()
+
         if self.game_in_progress and self.cells_clicked > 0:
             self.grid_logic.reveal_cells(self.bombs_logic.set_of_mines(), self.clicked_cells)
             self.show_CashOut_screen()
@@ -218,12 +275,23 @@ class CasinoMines(QWidget, GameStyle):
         self.config_panel.disable_cash_out_button()
         self.config_panel.restart_cash_out_button()
 
+    def calcProfit(self):
+        if self.bombHit:
+            return - self.config_panel.getBet()
+        else:
+            return self.config_panel.getProfit()
     
+    def calcWin(self):
+        profit = self.calcProfit()
+        print(profit)
+        if profit >= 0:
+            return "Win"
+        return "Loss"
 
-
-
-
-
+    # returning bet and mines for data.py
+    def add_user_data(self):
+        self.user_data.add_user_data(self.gamesPlayed, self.config_panel.getBet(), self.config_panel.getBombs(), self.config_panel.getBalanceBeforeChange(), self.calcProfit(), self.config_panel.getBalanceBeforeChange() + self.calcProfit(), self.calcWin())
+        self.data_tab.populateValues()
 
 
 
@@ -231,5 +299,3 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CasinoMines()
     sys.exit(app.exec())
-
-

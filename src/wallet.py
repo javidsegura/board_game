@@ -2,6 +2,10 @@ from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, 
                                 QLineEdit, QSpacerItem, QSizePolicy, QSlider)
 from PySide6.QtCore import QTimer, Qt
 
+from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel,
+                                QLineEdit, QSpacerItem, QSizePolicy, QSlider)
+from PySide6.QtCore import QTimer, Qt
+
 class Wallet:
     def __init__(self, initial_balance=1000):
         """
@@ -15,6 +19,7 @@ class Wallet:
         self.prior_multiplier = 1 # Prior multiplier
 
     def place_bet(self, amount):
+        print(f"Placing bet of {amount}")
         print(f"Placing bet of {amount}")
         self.current_bet = amount
         self.balance -= amount
@@ -33,8 +38,10 @@ class Wallet:
 
     def reset_bet(self):
         """ Reset wallet acount values"""
+        """ Reset wallet acount values"""
         self.current_bet = 0
         self.current_multiplier = 1
+        self.profit = 0
         self.profit = 0
 
     def get_balance(self):
@@ -52,4 +59,5 @@ class Wallet:
     def calculate_profit(self):
         print(f"Calculating profit: {self.current_bet} * {self.current_multiplier}")
         self.profit = self.current_bet * self.current_multiplier - self.current_bet
+        print(f"Profit: {self.profit}\n")
         return self.profit

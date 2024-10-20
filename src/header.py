@@ -39,7 +39,7 @@ class Header():
         header_layout.addWidget(self.profit_label)
 
         return header_frame
-    
+      
       def update_balance(self, new_balance):
         self.wallet_label.setText(f"Balance: {new_balance}$")
 
@@ -48,4 +48,5 @@ class Header():
 
       def update_profit(self, new_profit):
         print(f"Profit is {new_profit}")
+        # self.profit = new_profit
         self.profit_label.setText(f"Profit: {round(new_profit,2)}$")

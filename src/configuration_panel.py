@@ -18,6 +18,11 @@ class ConfigurationPanel():
         self.num_mines = 1
         self.start_button = None
         self.cash_out_button = None
+        # vars for data
+        self.betAmount = -1
+        self.numMines = -1
+        self.profit = 0
+        self.balanceBeforeChange = -1
         
     def set_up_panel(self) -> tuple[QVBoxLayout, QPushButton]:
         """ Invokes the different componenents of the configuration panel"""
@@ -114,8 +119,9 @@ class ConfigurationPanel():
         try:
             bet_amount = int(self.bet_input.text())
             self.num_mines = self.mines_slider.value()
-
+            print("\n\n\033[1mConfiguration:\033[0m\n")
             print(f"Current balance is {self.wallet.get_balance()}")
+            self.balanceBeforeChange = self.wallet.get_balance()
 
             if self.num_mines < 1 or self.num_mines > 24:
                 raise ValueError("Invalid number of mines. Try again!")
@@ -134,6 +140,8 @@ class ConfigurationPanel():
             self.wallet.place_bet(bet_amount)
             self.header.update_balance(self.wallet.get_balance())
 
+            self.betAmount = bet_amount
+            self.numMines = self.num_mines
             # If start button has been created, activate it
             if self.start_button:
                 self.start_button.setDisabled(False)
@@ -217,6 +225,7 @@ class ConfigurationPanel():
     def update_profit(self) -> None:
         """ Update the profit label"""
         self.header.update_profit(self.wallet.calculate_profit())
+        self.profit = self.wallet.calculate_profit()
 
     def set_start_button(self, button: QPushButton) -> None:
         """ Set the start button reference
@@ -243,5 +252,17 @@ class ConfigurationPanel():
     def get_prior_multiplier(self):
         """ Get the multiplier"""
         return self.wallet.prior_multiplier
+    
+    def getBet(self):
+        return self.betAmount
+    
+    def getBombs(self):
+        return self.numMines
+    
+    def getProfit(self):
+         return round(self.profit, 2)
+    
+    def getBalanceBeforeChange(self):
+        return self.balanceBeforeChange
 
 
