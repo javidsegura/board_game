@@ -8,7 +8,7 @@ https://github.com/user-attachments/assets/d20b3373-fe8c-4f84-82d2-c6023975c602
 
 A quantitative gaming framework implementing rigorous probabilistic modeling for multiplier functions and expected value optimization. Built to demonstrate mathematical rigor in risk assessment and real-time statistical analysis.
 
-**📊 [View Mathematical Proof](https://github.com/javidsegura/CasinoMines/blob/main/docs/MathOfGame.ipynb)** | **🎥 [Demo Video](docs/demo.mp4)**
+**📊 [View Mathematical Proof](https://github.com/javidsegura/CasinoMines/blob/main/docs/MathOfGame.ipynb)** **
 
 ---
 
